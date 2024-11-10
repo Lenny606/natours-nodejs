@@ -18,11 +18,11 @@ const tourSchema = new mongoose.Schema({
         type: String,
         required: [true, 'A difficulty is missing'],
     },
-    ratingAverage: {
+    ratingsAverage: {
         type: Number,
         default: 4
     },
-    ratingQuantity: {
+    ratingsQuantity: {
         type: Number,
         default: 0
     },
