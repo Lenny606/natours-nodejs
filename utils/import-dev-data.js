@@ -35,10 +35,11 @@ const purgeCollection = async () => {
         process.exit();
     }
 }
+
+//Arguments for cli: node utils/import-dev-data.js --import/--purge
 if (process.argv[2] === '--import') {
     importData();
 
 } else if (process.argv[2] === '--purge') {
     purgeCollection();
 }
-console.log(process.argv)

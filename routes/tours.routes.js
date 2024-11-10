@@ -9,6 +9,8 @@ import {
     isValidId,
     checkBodyMiddleware
 } from "../controllers/tours.controller.js";
+import toursModel from "../model/tours.model.js";
+import {schemaValidation} from "../middleware/schemaValidation.js";
 const tourRouter = express.Router()
 
 //middleware to validate id
