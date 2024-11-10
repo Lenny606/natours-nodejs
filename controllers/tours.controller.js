@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import fs from 'fs';
 import Tour from "../model/tours.model.js";
+import {ApiFeatures} from "../utils/apiFeatures.js";
 
 //top level code, can be synchronous
 const fileName = './data/tours.json';
@@ -32,7 +33,7 @@ export const checkBodyMiddleware = (req, res, next, value) => {
 export const topFiveCheap = async (req, res, next, value) => {
     //modify query
     req.query.limit = '5';
-    console.log( req.query.limit)
+    console.log(req.query.limit)
     req.query.sort = '-ratingAverage,price';
     req.query.fields = 'name,price,ratingAverage,difficulty,summary';
     next();
@@ -40,48 +41,54 @@ export const topFiveCheap = async (req, res, next, value) => {
 
 export const getAllTours = async (req, res) => {
     try {
+        //EXTRACTED INTO APIFEATURES CLASS
         //BUILD QUERY create copy for filtering, remove unwanted fields from query
-        const queryObj = {...req.query};
-        const excludeFields = ['page', 'sort', 'limit', 'fields'];
-        excludeFields.forEach(field => delete queryObj[field]);
-
-        //advanced filtering
-        const queryStr = JSON.stringify(queryObj).replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
-
-        let query = Tour.find(JSON.parse(queryStr));
+        // const queryObj = {...req.query};
+        // const excludeFields = ['page', 'sort', 'limit', 'fields'];
+        // excludeFields.forEach(field => delete queryObj[field]);
+        //
+        // //advanced filtering
+        // const queryStr = JSON.stringify(queryObj).replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
+        //
+        // let query = Tour.find(JSON.parse(queryStr));
 
         //SORTING
-        if (req.query.sort) {
-            const sortBy = req.query.sort.split(',').join(' '); //accept more params in query [-price, -ratingAverage]
-            query = query.sort(sortBy)
-        } else {
-            query = query.sort('-createdAt'); //default sort
-        }
+        // if (req.query.sort) {
+        //     const sortBy = req.query.sort.split(',').join(' '); //accept more params in query [-price, -ratingAverage]
+        //     query = query.sort(sortBy)
+        // } else {
+        //     query = query.sort('-createdAt'); //default sort
+        // }
 
         //field limiting ?fields=name,price,ratingAverage
-        if (req.query.fields) {
-            const limiting = req.query.fields.split(',').join(' ');
-            query = query.select(limiting); //default sort
-        } else {
-            query = query.select('-__v'); //defaultly excludes __v field from document
-        }
+        // if (req.query.fields) {
+        //     const limiting = req.query.fields.split(',').join(' ');
+        //     query = query.select(limiting); //default sort
+        // } else {
+        //     query = query.select('-__v'); //defaultly excludes __v field from document
+        // }
 
         //PAGINATING QUERY page=2&limit=10
-        const page = req.query.page * 1 || 1;
-        const limit = req.query.limit * 1 || 100;
-        const skip = (page - 1) * limit;
-        query = query.skip(skip).limit(limit)
+        // const page = req.query.page * 1 || 1;
+        // const limit = req.query.limit * 1 || 100;
+        // const skip = (page - 1) * limit;
+        // query = query.skip(skip).limit(limit)
 
-        if (req.query.page) {
-            const numTours = await Tour.countDocuments();
-            if (skip >= numTours) {
-                throw new Error('Page does not exist.');
-            }
-        }
+        // if (req.query.page) {
+        //     const numTours = await Tour.countDocuments();
+        //     if (skip >= numTours) {
+        //         throw new Error('Page does not exist.');
+        //     }
+        // }
 
 
         //EXECUTE QUERY
-        const allTours = await query;
+        const features = new ApiFeatures(Tour.find(), req.query)
+            .filter()
+            .sort()
+            .limitFields()
+            .paginate();
+        const allTours = await features.query;
 
         //SEND
         res.status(200).json({
