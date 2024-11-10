@@ -12,7 +12,7 @@ import {
 const tourRouter = express.Router()
 
 //middleware to validate id
-tourRouter.param('id', isValidId)
+// tourRouter.param('id', isValidId)
 
 tourRouter.route('/')
     .get(getAllTours)
