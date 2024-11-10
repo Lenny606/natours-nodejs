@@ -51,6 +51,17 @@ const tourSchema = new mongoose.Schema({
         select: false //excludes this field from returned documents
     }, //or use timestamps: true in schema options
     startDates: [Date]
+}, {
+    toJSON: {
+        virtuals: true
+    },
+    toObject: {
+        virtuals: true
+    }
+})
+//not part of database
+tourSchema.virtual('durationWeeks').get(function () {
+    return this.duration / 7;
 })
 
 const Tour = mongoose.model('Tour', tourSchema);
