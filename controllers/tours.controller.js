@@ -161,3 +161,94 @@ export const deleteTour = async (req, res) => {
         res.status(500).json({status: 'error', message: 'Failed to find a tour: ' + error});
     }
 }
+export const getTourStats = async (req, res) => {
+    try {
+        //array of stages for aggregation
+        const stats = await Tour.aggregate([
+            // match all tours that have rating above or == 4.5
+            {
+                $match: {ratingsAverage: {$gte: 4.5}}
+            },
+            // group all
+            {
+                $group: {
+                    _id: {$toUpper: '$difficulty'},
+                    numTours: {$sum: 1},
+                    avgRating: {$avg: '$ratingsAverage'},
+                    avgPrice: {$avg: '$price'},
+                    minPrice: {$min: '$price'},
+                    maxPrice: {$max: '$price'}
+                }
+            },
+            {
+                $sort: {
+                    avgPrice: 1
+                }
+            },
+            {
+                $match: {
+                    _id: {$ne: 'EASY'} //exclude easy
+                }
+            }
+        ])
+        res.status(200).json({
+            status: 'success',
+            data: {
+                stats
+            }
+
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({status: 'error', message: 'Failed to find a tour: ' + error});
+    }
+}
+
+export const getMonthlyPlans = async (req, res) => {
+    try {
+        const year = req.params.year * 1;
+        const plan = await Tour.aggregate([
+            {
+                $unwind: 'startDates' //split array into individual documents
+            },
+            {
+              $match: {
+                  startDates: {
+                    $gte: new Date(year, 1, 1), //start of year
+                    $lte: new Date(year, 12, 31) //end of year
+                  }
+
+              }
+            },
+            {
+                $group: {
+                    _id: {$month: '$startDates'},
+                    numTours: {$sum: 1},//number of tours in the month
+                    tourNames: {$push: '$name'}//list of tours in the month
+                }
+            },
+            {
+                $addFields: {
+                    month:  '$_id',//add month field
+                    year: year
+                }
+            },
+            {
+                $project: { // remove _id field from output
+                    _id: 0
+                }
+            },
+            {
+                $sort: {
+                    numTours: -1
+                }
+            },
+            {
+                $limit: 6
+            }
+        ])
+    } catch (error) {
+
+    }
+}
