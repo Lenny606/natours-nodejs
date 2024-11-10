@@ -29,12 +29,21 @@ export const checkBodyMiddleware = (req, res, next, value) => {
     next()
 }
 
+export const topFiveCheap = async (req, res, next, value) => {
+    //modify query
+    req.query.limit = '5';
+    console.log( req.query.limit)
+    req.query.sort = '-ratingAverage,price';
+    req.query.fields = 'name,price,ratingAverage,difficulty,summary';
+    next();
+}
+
 export const getAllTours = async (req, res) => {
     try {
         //BUILD QUERY create copy for filtering, remove unwanted fields from query
         const queryObj = {...req.query};
         const excludeFields = ['page', 'sort', 'limit', 'fields'];
-        excludeFields.forEach(field => delete query[field]);
+        excludeFields.forEach(field => delete queryObj[field]);
 
         //advanced filtering
         const queryStr = JSON.stringify(queryObj).replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);

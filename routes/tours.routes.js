@@ -7,7 +7,7 @@ import {
     getTour,
     deleteTour,
     isValidId,
-    checkBodyMiddleware
+    checkBodyMiddleware, topFiveCheap
 } from "../controllers/tours.controller.js";
 import toursModel from "../model/tours.model.js";
 import {schemaValidation} from "../middleware/schemaValidation.js";
@@ -15,6 +15,9 @@ const tourRouter = express.Router()
 
 //middleware to validate id
 // tourRouter.param('id', isValidId)
+
+//alias endpoint
+tourRouter.route('/top-5-cheap').get(topFiveCheap, getAllTours)
 
 tourRouter.route('/')
     .get(getAllTours)
