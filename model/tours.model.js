@@ -8,6 +8,10 @@ const tourSchema = new mongoose.Schema({
         unique: true, trim: true
     },
     slug: String,
+    secretTours: {
+        type: Boolean,
+        default: false
+    },
     duration: {
         type: Number,
         required: [true, 'A duration is missing'],
@@ -73,6 +77,22 @@ tourSchema.pre('save', function (next) {
 })
 tourSchema.post('save', function (document, next) {
     console.log(document)
+    next()
+})
+
+//QUERY MIDDLEWARE - find hooks find/findOne etc...
+tourSchema.pre(/^find/, function (next) {
+    this.find({
+        secretTours: {
+            $ne: true
+        }
+    })
+    this.start = Date.now()
+    next()
+})
+tourSchema.post(/^find/, function (document, next) {
+    console.log(`Query took: ${Date.now() - this.start} milliseconds`)
+
     next()
 })
 
