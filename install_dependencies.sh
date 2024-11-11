@@ -11,3 +11,6 @@ npm install express
 
 # Install dotenv
 npm install dotenv
+
+# Install node debugger
+npm install ndb
