@@ -10,7 +10,10 @@ export const globalErrorHandler = (err, req, res, next) => {
     } else {
         let error = {...err}
         if (error.name === "CastError") {
-            error = handleDBError(error)
+            error = handleCastDBError(error)
+        }
+        if (error.code === 11000) {
+            error = handleDuplicityDBError(error)
         }
         sendErrorProd(error, res)
     }
@@ -44,7 +47,13 @@ function sendErrorDev(err, res) {
     })
 }
 
-function handleDBError(err) {
+function handleCastDBError(err) {
     const msg = 'Invalid path ' + err.path + ": " + err.value
+    return new AppError(400, msg)
+}
+
+function handleDuplicityDBError(err) {
+    const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0]
+    const msg = 'Duplicity ' + value
     return new AppError(400, msg)
 }
