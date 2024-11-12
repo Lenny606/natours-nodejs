@@ -7,7 +7,16 @@ import Tour from "./model/tours.model.js";
 dotenv.config()
 
 const port = process.env.PORT || 3000;
-app.listen(port, () => {
+const server = app.listen(port, () => {
     connectDB();
     console.log('App running on port ' + port)
+})
+//unhandled error outside of express (DB for example), shut down gracefully
+process.on('unhandledRejection', err => {
+    console.log(err.name, err.message)
+    console.log('Unhandled rejection... Shuting down ...')
+    server.close(() => {
+        process.exit(1)
+
+    })
 })
