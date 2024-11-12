@@ -1,3 +1,5 @@
+import {AppError} from "../utils/appError.js";
+
 export const globalErrorHandler = (err, req, res, next) => {
     err.status = err.status || "error"
     err.statusCode = err.statusCode || 500
@@ -6,7 +8,11 @@ export const globalErrorHandler = (err, req, res, next) => {
     if (process.env.NODE_ENV !== "production") {
         sendErrorDev(err, res)
     } else {
-        sendErrorProd(err, res)
+        let error = {...err}
+        if (error.name === "CastError") {
+            error = handleDBError(error)
+        }
+        sendErrorProd(error, res)
     }
 }
 
@@ -36,4 +42,9 @@ function sendErrorDev(err, res) {
         message: err.message,
         stack: err.stack
     })
+}
+
+function handleDBError(err) {
+    const msg = 'Invalid path ' + err.path + ": " + err.value
+    return new AppError(400, msg)
 }
