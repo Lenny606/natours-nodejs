@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import fs from 'fs';
 import Tour from "../model/tours.model.js";
 import {ApiFeatures} from "../utils/apiFeatures.js";
+import {catchAsync} from "../utils/catchAsync.js";
+import {AppError} from "../utils/appError.js";
 
 //top level code, can be synchronous
 const fileName = './data/tours.json';
@@ -101,19 +103,22 @@ export const getAllTours = async (req, res) => {
         res.status(500).json({status: 'error', message: 'Failed to get tours.'});
     }
 }
-export const getTour = async (req, res) => {
+//TODO wrap all method with catchAsync
+export const getTour = catchAsync(async (req, res, next) => {
     //has middleware to validate id => isValidId()
-    try {
-        const tour = await Tour.findById(req.params.id);
-        res.status(200).json({
-            status: 'success',
-            data: tour
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(400).json({status: 'error', message: 'Failed to get tour: ' + error});
+
+    const tour = await Tour.findById(req.params.id);
+
+    //TODO add 404 to other methods
+    if (!tour) {
+        return new AppError("Tour with this id not found", 404);
     }
-}
+
+    res.status(200).json({
+        status: 'success',
+        data: tour
+    })
+})
 
 export const addTour = async (req, res) => {
     try {
@@ -213,13 +218,13 @@ export const getMonthlyPlans = async (req, res) => {
                 $unwind: 'startDates' //split array into individual documents
             },
             {
-              $match: {
-                  startDates: {
-                    $gte: new Date(year, 1, 1), //start of year
-                    $lte: new Date(year, 12, 31) //end of year
-                  }
+                $match: {
+                    startDates: {
+                        $gte: new Date(year, 1, 1), //start of year
+                        $lte: new Date(year, 12, 31) //end of year
+                    }
 
-              }
+                }
             },
             {
                 $group: {
@@ -230,7 +235,7 @@ export const getMonthlyPlans = async (req, res) => {
             },
             {
                 $addFields: {
-                    month:  '$_id',//add month field
+                    month: '$_id',//add month field
                     year: year
                 }
             },
