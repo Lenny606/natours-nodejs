@@ -15,6 +15,10 @@ export const globalErrorHandler = (err, req, res, next) => {
         if (error.code === 11000) {
             error = handleDuplicityDBError(error)
         }
+        if (error.name ==='ValidationError') {
+            handleValidationDBError(error)
+        }
+
         sendErrorProd(error, res)
     }
 }
@@ -55,5 +59,10 @@ function handleCastDBError(err) {
 function handleDuplicityDBError(err) {
     const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0]
     const msg = 'Duplicity ' + value
+    return new AppError(400, msg)
+}
+function handleValidationDBError(err) {
+const errors = Object.values(err.errors).map(err =>err.message)
+    const msg = 'Invalid data: ' + errors.join('. ')
     return new AppError(400, msg)
 }
