@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import validator from 'validator';
+import bcrypt from 'bcryptjs';
 
 
 const userSchema = new mongoose.Schema({
@@ -6,7 +8,7 @@ const userSchema = new mongoose.Schema({
             type: String,
             required: [true, 'A user must have a name'],
             maxLength: [50, 'A user name must have less than or equal to 50 characters'],
-            minLength: [10, 'A user name must have more than or equal to 10 characters'],
+            // minLength: [10, 'A user name must have more than or equal to 10 characters'],
             // validate: [validator.isAlpha(), 'User name must contain only alphabetical characters']
         },
         email: {
@@ -15,7 +17,7 @@ const userSchema = new mongoose.Schema({
             unique: true,
             trim: true,
             lowercase: true,
-            validate: [validator.isEmail(), 'User email is not valid']
+            validate: [validator.isEmail, 'User email is not valid']
         },
         password: {
             type: String,
@@ -26,7 +28,12 @@ const userSchema = new mongoose.Schema({
             type: String,
             required: [true, 'A user must have a password'],
             minLength: [4, 'A user password must have more than or equal to 4 characters'],
-            // validate: []
+            validate: {
+                validator: function (value) {
+                    return this.password === value;
+                },
+                message: 'Passwords do not match'
+            }
 
         },
         photo: String,
@@ -47,6 +54,16 @@ const userSchema = new mongoose.Schema({
         }
     }
 )
+
+userSchema.pre('save', async (next) => {
+    if (!this.isModified('password')) {
+        return next();
+    }
+    this.password = await bcrypt.hash(this.password, 12)
+    this.passwordConfirm = undefined;
+    next()
+})
+
 
 const User = mongoose.model('User', userSchema);
 export default User;
