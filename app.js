@@ -2,7 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
 import {AppError} from "./utils/appError.js";
-import globalErrorHandler from "./controllers/errors.controller.js"
+import {globalErrorHandler} from "./controllers/errors.controller.js"
 import tourRouter from './routes/tours.routes.js';
 import userRouter from './routes/users.routes.js';
 
