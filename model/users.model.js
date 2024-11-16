@@ -5,13 +5,31 @@ const userSchema = new mongoose.Schema({
         name: {
             type: String,
             required: [true, 'A user must have a name'],
-            unique: true,
-            trim: true,
             maxLength: [50, 'A user name must have less than or equal to 50 characters'],
             minLength: [10, 'A user name must have more than or equal to 10 characters'],
             // validate: [validator.isAlpha(), 'User name must contain only alphabetical characters']
         },
-        images: [String],
+        email: {
+            type: String,
+            required: [true, 'A user must have a email'],
+            unique: true,
+            trim: true,
+            lowercase: true,
+            validate: [validator.isEmail(), 'User email is not valid']
+        },
+        password: {
+            type: String,
+            required: [true, 'A user must have a password'],
+            minLength: [4, 'A user password must have more than or equal to 4 characters'],
+        },
+        passwordConfirm: {
+            type: String,
+            required: [true, 'A user must have a password'],
+            minLength: [4, 'A user password must have more than or equal to 4 characters'],
+            // validate: []
+
+        },
+        photo: String,
         createdAt: {
             type: Date,
             default: Date.now(),
@@ -29,40 +47,6 @@ const userSchema = new mongoose.Schema({
         }
     }
 )
-//not part of database
-// userSchema.virtual('').get(function () {
-//     return
-// })
-
-//DOCUMENT MW -only for save/create
-
-
-//QUERY MIDDLEWARE - find hooks find/findOne etc...
-// userSchema.pre(/^find/, function (next) {
-//     this.find({
-//         secretUsers: {
-//             $ne: true
-//         }
-//     })
-//     this.start = Date.now()
-//     next()
-// })
-// userSchema.post(/^find/, function (document, next) {
-//     console.log(`Query took: ${Date.now() - this.start} milliseconds`)
-//     next()
-// })
-// //AGREGATION MIDDLEWARE - aggregate hooks
-// userSchema.pre('aggregate', function (next) {
-//     //add some custom pipeline stages into array
-//     this.pipeline().unshift({
-//         $match: {
-//             secretUsers: {
-//                 $ne: true
-//             }
-//         }
-//     })
-//     next()
-// })
 
 const User = mongoose.model('User', userSchema);
 export default User;
