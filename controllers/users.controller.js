@@ -1,13 +1,17 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import fs from 'fs';
+import User from "../model/users.model.js";
+import {ApiFeatures} from "../utils/apiFeatures.js";
+import {catchAsync} from "../utils/catchAsync.js";
 
 //top level code, can be synchronous
 const fileName = './data/users.json';
 const data = fs.readFileSync(fileName)
 const users = JSON.parse(data);
 
-export const getAllUsers = async (req, res) => {
+export const getAllUsers = catchAsync(async (req, res, next) => {
+    const users = await User.find()
     try {
         res.status(200).json({
             status: 'success',
@@ -18,7 +22,7 @@ export const getAllUsers = async (req, res) => {
         console.error(error);
         res.status(500).json({status: 'error', message: 'Failed to get users.'});
     }
-}
+})
 export const getUser = async (req, res) => {
     const params = req.params
     const user = users.find(user => user.id === parseInt(params.id));
@@ -63,7 +67,7 @@ export const editUser = async (req, res) => {
         return res.status(404).json({status: 'error', message: 'Invalid ID.'});
     }
     //updates user object with new data
-    users[paramsId] = {...user,...req.body};
+    users[paramsId] = {...user, ...req.body};
 
     try {
         const updatedData = JSON.stringify(users);
@@ -89,7 +93,7 @@ export const deleteUser = async (req, res) => {
         return res.status(404).json({status: 'error', message: 'Invalid ID.'});
     }
     //deletes user object from data
-    const users = users.filter(user => user.id!== parseInt(paramsId));
+    const users = users.filter(user => user.id !== parseInt(paramsId));
 
     try {
         const updatedData = JSON.stringify(users);
