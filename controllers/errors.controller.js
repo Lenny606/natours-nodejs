@@ -18,6 +18,12 @@ export const globalErrorHandler = (err, req, res, next) => {
         if (error.name ==='ValidationError') {
             handleValidationDBError(error)
         }
+        if (error.name ==='JsonWebTokenError') {
+            handleJsonWebTokenError(error)
+        }
+        if (error.name ==='TokenExpiredError') {
+            handleJsonWebExpiredTokenError(error)
+        }
 
         sendErrorProd(error, res)
     }
@@ -53,7 +59,15 @@ function sendErrorDev(err, res) {
 
 function handleCastDBError(err) {
     const msg = 'Invalid path ' + err.path + ": " + err.value
-    return new AppError(400, msg)
+    return new AppError(msg,400)
+}
+function handleJsonWebTokenError(err) {
+    const msg = 'Invalid Token...Login again'
+    return new AppError(msg, 401)
+}
+function handleJsonWebExpiredTokenError(err) {
+    const msg = 'Expired Token...Login again'
+    return new AppError(msg, 401)
 }
 
 function handleDuplicityDBError(err) {

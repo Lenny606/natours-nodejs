@@ -1,6 +1,7 @@
 import User from "../model/users.model.js";
 import {catchAsync} from "../utils/catchAsync.js";
 import jwt from "jsonwebtoken"
+import {promisify} from "util"
 import {AppError} from "../utils/appError.js";
 
 const signToken = (id) => {
@@ -52,6 +53,29 @@ export const loginUser = async (req, res, next) => {
             message: "Logged in successfully"
         }
     )
-
-
 }
+export const protectRoute = catchAsync(async (req, res, next) => {
+    //get token
+    let token
+    if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
+        token = req.headers.authorization.split(" ")[1]
+    }
+    if (!token) {
+        return next(new AppError("You are not logged in", 401))
+    }
+    //validate token , verify() is async function , use promisify
+    const decodedData = await promisify(jwt.verify(token, process.env.JWT_SECRET))
+
+    //check user if still exists using docoded ID
+    const currentUser = await User.findById(decodedData.id)
+    if (!currentUser) {
+        return next(new AppError("User no longer exists", 401))
+    }
+    //check if password wasnt changed / login on model
+    if (currentUser.changedPasswordAfter(decodedData.iat)) {
+        return next(new AppError("User password has been changed... Login again", 401))
+    }
+    //access granted
+    req.user = currentUser
+    next()
+})

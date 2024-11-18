@@ -43,7 +43,10 @@ const userSchema = new mongoose.Schema({
             default: Date.now(),
             select: false //excludes this field from returned documents
         }, //or use timestamps: true in schema options
-
+        passwordChangedAt: {
+            type: Date,
+            select: false
+        }
     },
     {
         toJSON: {
@@ -67,6 +70,15 @@ userSchema.pre('save', async (next) => {
 
 userSchema.methods.confirmPassword = async (candidatePassword, userPassword) => {
     return await bcrypt.compare(candidatePassword, userPassword)
+}
+
+userSchema.methods.changedPasswordAfter = (JWTTimestamp) => {
+    if(this.passwordChangedAt) {
+        const changedPass = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
+
+        return JWTTimestamp < changedPass;
+    }
+    return false
 }
 
 
