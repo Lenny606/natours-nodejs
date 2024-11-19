@@ -14,3 +14,5 @@ npm install dotenv
 
 # Install node debugger
 npm install ndb
+# Install node nodemailer
+npm install nodemailer

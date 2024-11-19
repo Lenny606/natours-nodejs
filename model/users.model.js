@@ -74,6 +74,14 @@ userSchema.pre('save', async (next) => {
     this.passwordConfirm = undefined;
     next()
 })
+//mw for resetPassword process
+userSchema.pre('save', async (next) => {
+    if (!this.isModified('password') || this.isNew) {
+        return next();
+    }
+    this.passwordChangedAt = Date.now() - 1000 // do with small difference
+    next()
+})
 
 userSchema.methods.confirmPassword = async (candidatePassword, userPassword) => {
     return await bcrypt.compare(candidatePassword, userPassword)

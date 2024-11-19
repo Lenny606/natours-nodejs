@@ -100,6 +100,51 @@ export const forgotPassword = catchAsync(async (req, res, next) => {
     const resetToken = user.createPasswordResetToken()
     await user.save({validateBeforeSave: false}) //disable mandatory fields
     //send email
+    const resetURL = `${req.protocol}://${req.get('host')}/api/v1/users/resetPassword/${resetToken}`
+    const message = `Forgot your password? Submit a PATCH request to ${resetURL} with your new password and passwordConfirm in the request body.`
+    try {
+        await sendEmail({
+            email: user.email,
+            subject: "Password reset token (valid for 10 minutes)",
+            message
+        })
+        res.status(200).json({
+            status: "success",
+            message: "Reset token sent to email"
+        })
+    } catch (error) {
+        //if error reset tokens
+        user.passwordResetToken = undefined
+        user.passwordResetExpires = undefined
+        await user.save({validateBeforeSave: false})
+        return next(new AppError("Failed to send email", 500))
+    }
 })
-export const resetPassword = catchAsync((req, res, next) => {
+export const resetPassword = catchAsync(async (req, res, next) => {
+    //get user
+    const hashedToken = crypto.createHash('sha256').update(req.params.token).digest('hex')
+    const user = await User.findOne({
+        passwordResetToken: hashedToken,
+        passwordResetExpires: {$gt: Date.now()}
+    })
+    if (!user) {
+        return next(new AppError("Token is invalid or expired", 401))
+    }
+    //set pass if user exist and token is not expired
+    user.password = req.body.password
+    user.passwordConfirm = req.body.passwordConfirm
+    user.passwordResetToken = undefined
+    user.passwordResetExpires = undefined
+    await user.save()
+
+    //update passwordChangedAt
+    // => handled by Middleware on user model
+
+    //log in user, send jwt
+    const token = signToken(user._id)
+    res.status(200).json({
+        status: "success",
+        token,
+        message: "Password reset successfully"
+    })
 })

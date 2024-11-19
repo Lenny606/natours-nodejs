@@ -16,5 +16,5 @@ userRouter.route('/:id')
 userRouter.post('/signup', signUpUser)
 userRouter.post('/login', loginUser)
 userRouter.post('/forgotPassword', forgotPassword)
-userRouter.post('/resetPassword', resetPassword)
+userRouter.patch('/resetPassword/:token', resetPassword)
 export default userRouter;
