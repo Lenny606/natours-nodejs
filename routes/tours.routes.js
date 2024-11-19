@@ -11,7 +11,7 @@ import {
 } from "../controllers/tours.controller.js";
 import toursModel from "../model/tours.model.js";
 import {schemaValidation} from "../middleware/schemaValidation.js";
-import {protectRoute} from "../controllers/auth.controller.js";
+import {protectRoute, restrictTo} from "../controllers/auth.controller.js";
 const tourRouter = express.Router()
 
 //middleware to validate id
@@ -29,7 +29,7 @@ tourRouter.route('/')
 tourRouter.route('/:id')
     .get(getTour)
     .patch(editTour)
-    .delete(deleteTour)
+    .delete(protectRoute, restrictTo('admin', 'lead-guide') ,deleteTour)
 
 
 
