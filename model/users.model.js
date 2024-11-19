@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
         },
         role: {
             type: String,
-            enum : ['user', 'admin', 'guide', "lead-guide"],
+            enum: ['user', 'admin', 'guide', "lead-guide"],
             default: 'user'
         },
         password: {
@@ -51,7 +51,9 @@ const userSchema = new mongoose.Schema({
         passwordChangedAt: {
             type: Date,
             select: false
-        }
+        },
+        passwordResetToken: String,
+        passwordResetExpires: Date
     },
     {
         toJSON: {
@@ -84,6 +86,14 @@ userSchema.methods.changedPasswordAfter = (JWTTimestamp) => {
         return JWTTimestamp < changedPass;
     }
     return false
+}
+
+userSchema.methods.createPasswordResetToken = () => {
+    const token = crypto.getRandomValues(32).toString('hex')
+    //hash token
+    this.passwordResetToken =  crypto.createHash("sha256").update(token).digest('hex')
+    this.passwordResetExpires = Date.now() + 10 * 60 * 1000 // 10 min
+    return token;
 }
 
 
