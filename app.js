@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
+import rateLimit from 'express-rate-limit';
 import {AppError} from "./utils/appError.js";
 import {globalErrorHandler} from "./controllers/errors.controller.js"
 import tourRouter from './routes/tours.routes.js';
@@ -8,7 +9,15 @@ import userRouter from './routes/users.routes.js';
 
 export const app = express();
 dotenv.config()
+
+//set 100request per 1hr
+const limiter = rateLimit({
+    max: 100,
+    windowMs: 60 * 60 * 1000,
+    message: 'Too many requests from this IP, please try again in an hour.'
+})
 //middlewares 3rd party
+app.use('/api', limiter)
 app.use(express.json())
 if (process.env.NODE_ENV === 'dev') {
     app.use(morgan('dev'))//logs requests
