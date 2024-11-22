@@ -1,18 +1,9 @@
-#!/bin/bash
+# Install development dependencies
+echo "Installing development dependencies..."
+npm install --save-dev nodemon ndb
 
-# Install nodemon
-npm install nodemon --save-dev
+# Install general dependencies
+echo "Installing general dependencies..."
+npm install morgan express dotenv nodemailer express-rate-limit
 
-# Install Morgan
-npm install morgan
-
-# Install Express
-npm install express
-
-# Install dotenv
-npm install dotenv
-
-# Install node debugger
-npm install ndb
-# Install node nodemailer
-npm install nodemailer
+echo "Installation complete!"
