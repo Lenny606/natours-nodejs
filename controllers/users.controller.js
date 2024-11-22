@@ -4,11 +4,23 @@ import fs from 'fs';
 import User from "../model/users.model.js";
 import {ApiFeatures} from "../utils/apiFeatures.js";
 import {catchAsync} from "../utils/catchAsync.js";
+import {AppError} from "../utils/appError.js";
 
 //top level code, can be synchronous
 const fileName = './data/users.json';
 const data = fs.readFileSync(fileName)
 const users = JSON.parse(data);
+
+
+const filterObject = (obj, fieldsArray) => {
+    const newObj = {};
+    Object.keys(obj).forEach(el => {
+        if (fieldsArray.includes(el)) {
+            newObj[el] = obj[el]
+        };
+    })
+    return newObj;
+}
 
 export const getAllUsers = catchAsync(async (req, res, next) => {
     const users = await User.find()
@@ -110,4 +122,23 @@ export const deleteUser = async (req, res) => {
         console.error(error);
         res.status(500).json({status: 'error', message: 'Failed to find a user.'});
     }
+}
+
+export const updateMe = async (req, res, next) => {
+    //if password return err
+    if (req.body.password || req.body.passwordConfirm) {
+        return next(new AppError('This route is not for password updates', 400))
+    }
+
+    //update user document
+    const filteredBody = filterObject(req.body, ['password', 'passwordConfirm']);
+    const userUpdated = await User.findByIdAndUpdate(req.user.id, filteredBody, {
+        new: true,
+        runValidators: true
+    })
+
+    res.status(200).json({
+        status: 'success',
+        data: userUpdated
+    })
 }
