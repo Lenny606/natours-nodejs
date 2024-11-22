@@ -53,7 +53,12 @@ const userSchema = new mongoose.Schema({
             select: false
         },
         passwordResetToken: String,
-        passwordResetExpires: Date
+        passwordResetExpires: Date,
+        active: {
+            type: Boolean,
+            default: true,
+            select: false
+        }
     },
     {
         toJSON: {
@@ -82,6 +87,11 @@ userSchema.pre('save', async (next) => {
     this.passwordChangedAt = Date.now() - 1000 // do with small difference
     next()
 })
+//filter inactive users (not equal to false)
+userSchema.pre(/^find/, function (next) {
+    this.find({active: {$ne: false}})
+    next()
+})
 
 userSchema.methods.confirmPassword = async (candidatePassword, userPassword) => {
     return await bcrypt.compare(candidatePassword, userPassword)
@@ -99,7 +109,7 @@ userSchema.methods.changedPasswordAfter = (JWTTimestamp) => {
 userSchema.methods.createPasswordResetToken = () => {
     const token = crypto.getRandomValues(32).toString('hex')
     //hash token
-    this.passwordResetToken =  crypto.createHash("sha256").update(token).digest('hex')
+    this.passwordResetToken = crypto.createHash("sha256").update(token).digest('hex')
     this.passwordResetExpires = Date.now() + 10 * 60 * 1000 // 10 min
     return token;
 }

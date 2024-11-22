@@ -17,7 +17,8 @@ const filterObject = (obj, fieldsArray) => {
     Object.keys(obj).forEach(el => {
         if (fieldsArray.includes(el)) {
             newObj[el] = obj[el]
-        };
+        }
+        ;
     })
     return newObj;
 }
@@ -124,7 +125,7 @@ export const deleteUser = async (req, res) => {
     }
 }
 
-export const updateMe = async (req, res, next) => {
+export const updateMe = catchAsync(async (req, res, next) => {
     //if password return err
     if (req.body.password || req.body.passwordConfirm) {
         return next(new AppError('This route is not for password updates', 400))
@@ -141,4 +142,15 @@ export const updateMe = async (req, res, next) => {
         status: 'success',
         data: userUpdated
     })
-}
+})
+
+export const deleteMe = catchAsync(async (req, res, next) => {
+    //update user document
+    await User.findByIdAndDelete(req.user.id, {active: false})
+
+    res.status(204).json({
+        status: 'success',
+        data: null,
+        message: 'User deleted'
+    })
+})
