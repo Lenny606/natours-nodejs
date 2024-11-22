@@ -5,6 +5,7 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
+import hpp from 'hpp';
 import {AppError} from "./utils/appError.js";
 import {globalErrorHandler} from "./controllers/errors.controller.js"
 import tourRouter from './routes/tours.routes.js';
@@ -32,6 +33,17 @@ app.use(express.json({
 app.use(mongoSanitize())
 //looks malicious html code
 app.use(xss())
+//prevents parameter poluution
+app.use(hpp({
+    whitelist: ['duration',
+        'maxGroupSize',
+        'maxDistance',
+        "price",
+        'ratingsQuantity',
+        "ratingsAverage",
+        'difficulty',
+        ] //only allow these fields in query string
+}))
 
 if (process.env.NODE_ENV === 'dev') {
     app.use(morgan('dev'))//logs requests
