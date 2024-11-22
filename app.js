@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
+import mongoSanitize from 'express-mongo-sanitize';
+import xss from 'xss-clean';
 import {AppError} from "./utils/appError.js";
 import {globalErrorHandler} from "./controllers/errors.controller.js"
 import tourRouter from './routes/tours.routes.js';
@@ -25,6 +27,12 @@ app.use('/api', limiter)
 app.use(express.json({
     limit: '10kb'
 }))
+
+//checks for character injection
+app.use(mongoSanitize())
+//looks malicious html code
+app.use(xss())
+
 if (process.env.NODE_ENV === 'dev') {
     app.use(morgan('dev'))//logs requests
 }
