@@ -33,7 +33,7 @@ app.use(express.json({
 app.use(mongoSanitize())
 //looks malicious html code
 app.use(xss())
-//prevents parameter poluution
+//prevents parameter pollution
 app.use(hpp({
     whitelist: ['duration',
         'maxGroupSize',
@@ -61,6 +61,7 @@ app.use((req, res, next) => {
 
 app.use("/api/v1/tours", tourRouter)
 app.use("/api/v1/users", userRouter)
+app.use("/api/v1/reviews", reviewRouter)
 
 //Handler for undefined routes (last in stack order)
 app.all('*', (req, res, next) => {

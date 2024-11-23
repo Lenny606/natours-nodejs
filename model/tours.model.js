@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import slugify from 'slugify';
+import User from "./users.model.js";
 
 const tourSchema = new mongoose.Schema({
         name: {
@@ -76,7 +77,43 @@ const tourSchema = new mongoose.Schema({
             default: Date.now(),
             select: false //excludes this field from returned documents
         }, //or use timestamps: true in schema options
-        startDates: [Date]
+        startDates: [Date],
+        startLocation: {
+            //geojson
+            type: {
+                type: String,
+                default: 'Point',
+                enum: ['Point']
+            },
+            coordinates: {
+                type: [Number],
+                required: [true, 'Start location must have coordinates']
+            },
+            address: String,
+            description: String
+        },
+    //if array of object is defined Mongo creates a new embedded document
+        locations: [
+            {
+                type: {
+                    type: String,
+                    default: 'Point',
+                    enum: ['Point']
+                },
+                coordinates: [Number],
+                address: String,
+                description: String,
+                day: Number
+            }
+        ],
+    guides: [
+        {
+            //child reference
+            type: mongoose.Schema.ObjectId,
+            ref: 'User',
+            // required: [true, 'A tour must have a guide']
+        }
+    ]
     },
     {
         toJSON: {
@@ -92,6 +129,13 @@ const tourSchema = new mongoose.Schema({
 tourSchema.virtual('durationWeeks').get(function () {
     return this.duration / 7;
 })
+
+//set User object as guides from id in request (embbed refonly for create/save new tour)
+// tourSchema.pre('save', async function(next){
+//     const guidesPromises = this.guides.map(async id =>  await User.findById(id))
+//     this.guides = await Promise.all(guidesPromises)
+//     next()
+// })
 
 //DOCUMENT MW -only for save/create
 tourSchema.pre('save', function (next) {
@@ -113,6 +157,23 @@ tourSchema.pre(/^find/, function (next) {
     this.start = Date.now()
     next()
 })
+//populates referenced data
+tourSchema.pre(/^find/, function (next) {
+    this.populate(
+        {
+            path: 'guides',
+            select: '-__v -passwordChangedAt' //exclude password and passwordChangedAt fields from guides
+        }//add populating reference to the query
+    )
+    next()
+})
+//VIrtual Populates References
+tourSchema.virtual('reviews', {
+    ref: 'Review',
+    foreignField: 'tour',
+    localField: '_id'
+})
+
 tourSchema.post(/^find/, function (document, next) {
     console.log(`Query took: ${Date.now() - this.start} milliseconds`)
     next()

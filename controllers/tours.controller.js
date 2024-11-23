@@ -32,14 +32,14 @@ export const checkBodyMiddleware = (req, res, next, value) => {
     next()
 }
 
-export const topFiveCheap = async (req, res, next, value) => {
+export const topFiveCheap = catchAsync(async (req, res, next, value) => {
     //modify query
     req.query.limit = '5';
     console.log(req.query.limit)
     req.query.sort = '-ratingAverage,price';
     req.query.fields = 'name,price,ratingAverage,difficulty,summary';
     next();
-}
+})
 
 export const getAllTours = async (req, res) => {
     try {
@@ -103,11 +103,11 @@ export const getAllTours = async (req, res) => {
         res.status(500).json({status: 'error', message: 'Failed to get tours.'});
     }
 }
-//TODO wrap all method with catchAsync
+
 export const getTour = catchAsync(async (req, res, next) => {
     //has middleware to validate id => isValidId()
 
-    const tour = await Tour.findById(req.params.id);
+    const tour = await Tour.findById(req.params.id).populate('reviews')  //uses virtual populate MW
 
     //TODO add 404 to other methods
     if (!tour) {
@@ -120,7 +120,7 @@ export const getTour = catchAsync(async (req, res, next) => {
     })
 })
 
-export const addTour = async (req, res) => {
+export const addTour = catchAsync(async (req, res) => {
     try {
         const newTour = await Tour.create(req.body)
         res.status(201).json({
@@ -132,8 +132,8 @@ export const addTour = async (req, res) => {
         console.error(error);
         res.status(400).json({status: 'error', message: 'Failed to add tour: ' + error});
     }
-}
-export const editTour = async (req, res) => {
+})
+export const editTour = catchAsync(async (req, res) => {
 
     try {
         //method used for PATCH request, doesnt work with PUT
@@ -150,9 +150,9 @@ export const editTour = async (req, res) => {
         console.error(error);
         res.status(500).json({status: 'error', message: 'Failed to find a tour: ' + error});
     }
-}
+})
 
-export const deleteTour = async (req, res) => {
+export const deleteTour = catchAsync(async (req, res) => {
     try {
         await Tour.findByIdAndDelete(req.params.id)
         res.status(204).json({
@@ -165,8 +165,8 @@ export const deleteTour = async (req, res) => {
         console.error(error);
         res.status(500).json({status: 'error', message: 'Failed to find a tour: ' + error});
     }
-}
-export const getTourStats = async (req, res) => {
+})
+export const getTourStats = catchAsync(async (req, res) => {
     try {
         //array of stages for aggregation
         const stats = await Tour.aggregate([
@@ -208,9 +208,9 @@ export const getTourStats = async (req, res) => {
         console.error(error);
         res.status(500).json({status: 'error', message: 'Failed to find a tour: ' + error});
     }
-}
+})
 
-export const getMonthlyPlans = async (req, res) => {
+export const getMonthlyPlans = catchAsync(async (req, res) => {
     try {
         const year = req.params.year * 1;
         const plan = await Tour.aggregate([
@@ -256,4 +256,4 @@ export const getMonthlyPlans = async (req, res) => {
     } catch (error) {
 
     }
-}
+})
