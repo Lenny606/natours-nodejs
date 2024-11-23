@@ -12,10 +12,10 @@ import {
 } from "../controllers/reviews.controller.js";
 import {schemaValidation} from "../middleware/schemaValidation.js";
 import {protectRoute, restrictTo} from "../controllers/auth.controller.js";
-const reviewRouter = express.Router()
-
-//middleware to validate id
-// reviewRouter.param('id', isValidId)
+//merge query parameter from other routes (tours)
+const reviewRouter = express.Router({
+    mergeParams: true
+})
 
 //alias endpoint
 reviewRouter.route('/top-5-reviews').get(topFiveReviews, getReviews)

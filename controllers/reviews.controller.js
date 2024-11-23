@@ -15,8 +15,13 @@ export const topFiveReviews = catchAsync(async (req, res, next, value) => {
 })
 
 export const getReviews = async (req, res) => {
+    //if id is in params
+    let filter ={
+        tour: req.params.tourId
+    }
+
     try {
-        const features = new ApiFeatures(Review.find(), req.query)
+        const features = new ApiFeatures(Review.find(filter), req.query)
             .filter()
             .sort()
             .limitFields()
@@ -52,6 +57,14 @@ export const getReview = catchAsync(async (req, res, next) => {
 })
 
 export const addReview = catchAsync(async (req, res) => {
+   //allow nested routes
+    if(!req.body.tour){
+        req.body.tour = req.params.tourId
+    }
+    if(!req.body.user){
+        req.body.user = req.user.id
+    }
+
     try {
         const newReview = await Review.create(req.body)
         res.status(201).json({

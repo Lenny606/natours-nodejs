@@ -7,7 +7,7 @@ import {
     signUpUser,
     forgotPassword,
     updatePassword,
-    protectRoute
+    protectRoute, restrictTo
 } from "../controllers/auth.controller.js";
 const userRouter = express.Router()
 

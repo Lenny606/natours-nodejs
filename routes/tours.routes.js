@@ -12,10 +12,16 @@ import {
 import toursModel from "../model/tours.model.js";
 import {schemaValidation} from "../middleware/schemaValidation.js";
 import {protectRoute, restrictTo} from "../controllers/auth.controller.js";
+import userRouter from "./users.routes.js";
+import reviewRouter from "./reviews.routes.js";
+import {addReview} from "../controllers/reviews.controller.js";
 const tourRouter = express.Router()
 
 //middleware to validate id
 // tourRouter.param('id', isValidId)
+
+//use review Router if route is
+tourRouter.use('/:tourId/reviews', reviewRouter)
 
 //alias endpoint
 tourRouter.route('/top-5-cheap').get(topFiveCheap, getAllTours)
@@ -31,6 +37,8 @@ tourRouter.route('/:id')
     .patch(editTour)
     .delete(protectRoute, restrictTo('admin', 'lead-guide') ,deleteTour)
 
+//nested routes
+userRouter.route('/:tourId/reviews').post(protectRoute, restrictTo('user'),addReview)
 
 
 export default tourRouter;
