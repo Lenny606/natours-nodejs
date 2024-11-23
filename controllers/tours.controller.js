@@ -5,6 +5,7 @@ import Tour from "../model/tours.model.js";
 import {ApiFeatures} from "../utils/apiFeatures.js";
 import {catchAsync} from "../utils/catchAsync.js";
 import {AppError} from "../utils/appError.js";
+import {deleteOne} from "./handlerFactory.js";
 
 //top level code, can be synchronous
 const fileName = './data/tours.json';
@@ -151,21 +152,22 @@ export const editTour = catchAsync(async (req, res) => {
         res.status(500).json({status: 'error', message: 'Failed to find a tour: ' + error});
     }
 })
-
-export const deleteTour = catchAsync(async (req, res) => {
-    try {
-        await Tour.findByIdAndDelete(req.params.id)
-        res.status(204).json({
-            status: 'success',
-            message: "tour " + req.params.id + " deleted",
-            data: null
-        });
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({status: 'error', message: 'Failed to find a tour: ' + error});
-    }
-})
+//TODO switch to handler in other methods
+export const deleteTour = deleteOne(Tour)
+// export const deleteTour = catchAsync(async (req, res) => {
+//     try {
+//         await Tour.findByIdAndDelete(req.params.id)
+//         res.status(204).json({
+//             status: 'success',
+//             message: "tour " + req.params.id + " deleted",
+//             data: null
+//         });
+//
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({status: 'error', message: 'Failed to find a tour: ' + error});
+//     }
+// })
 export const getTourStats = catchAsync(async (req, res) => {
     try {
         //array of stages for aggregation
