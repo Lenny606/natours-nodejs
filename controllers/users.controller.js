@@ -154,3 +154,9 @@ export const deleteMe = catchAsync(async (req, res, next) => {
         message: 'User deleted'
     })
 })
+
+//MW to add current users id to params
+export const getMe = catchAsync(async (req, res, next) => {
+    req.params.id = req.user.id
+    next()
+})

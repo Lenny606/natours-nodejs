@@ -1,6 +1,15 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import {addUser, editUser, getAllUsers, getUser, deleteUser, updateMe, deleteMe} from "../controllers/users.controller.js";
+import {
+    addUser,
+    editUser,
+    getAllUsers,
+    getUser,
+    deleteUser,
+    updateMe,
+    deleteMe,
+    getMe
+} from "../controllers/users.controller.js";
 import {
     loginUser,
     resetPassword,
@@ -30,4 +39,7 @@ userRouter.patch('/updatePassword', protectRoute, updatePassword)
 //data modifications
 userRouter.patch('/updateMe', protectRoute, updateMe )
 userRouter.delete('/deleteMe', protectRoute, deleteMe )
+
+//get users own data
+userRouter.get("/me", protectRoute, getMe, getUser)
 export default userRouter;
