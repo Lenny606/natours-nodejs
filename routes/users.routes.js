@@ -18,8 +18,25 @@ import {
     updatePassword,
     protectRoute, restrictTo
 } from "../controllers/auth.controller.js";
+
 const userRouter = express.Router()
 
+//auth logic, not protected
+userRouter.post('/signup', signUpUser)
+userRouter.post('/login', loginUser)
+userRouter.post('/forgotPassword', forgotPassword)
+userRouter.patch('/resetPassword/:token', resetPassword)
+
+//adds MW to all routes below in the stack TODO setup in other routers
+userRouter.use(protectRoute)
+
+//auth logic, protected
+userRouter.patch('/updatePassword', updatePassword)
+
+//restricted , adds MW to all routes below in the stack
+userRouter.use(restrictTo('admin'))
+
+//data fetching/modifing
 userRouter.route('/')
     .get(getAllUsers)
     .post(addUser)
@@ -29,17 +46,11 @@ userRouter.route('/:id')
     .patch(editUser)
     .delete(deleteUser)
 
-//auth logic
-userRouter.post('/signup', signUpUser)
-userRouter.post('/login', loginUser)
-userRouter.post('/forgotPassword', forgotPassword)
-userRouter.patch('/resetPassword/:token', resetPassword)
-userRouter.patch('/updatePassword', protectRoute, updatePassword)
 
 //data modifications
-userRouter.patch('/updateMe', protectRoute, updateMe )
-userRouter.delete('/deleteMe', protectRoute, deleteMe )
+userRouter.patch('/updateMe', updateMe)
+userRouter.delete('/deleteMe', deleteMe)
 
 //get users own data
-userRouter.get("/me", protectRoute, getMe, getUser)
+userRouter.get("/me", getMe, getUser)
 export default userRouter;

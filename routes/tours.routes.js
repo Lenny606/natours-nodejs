@@ -15,6 +15,7 @@ import {protectRoute, restrictTo} from "../controllers/auth.controller.js";
 import userRouter from "./users.routes.js";
 import reviewRouter from "./reviews.routes.js";
 import {addReview, setTourAndUserId} from "../controllers/reviews.controller.js";
+
 const tourRouter = express.Router()
 
 //middleware to validate id
@@ -29,16 +30,16 @@ tourRouter.route('/tour-stats').get(getTourStats)
 tourRouter.route('/monthly-plan').get(getMonthlyPlans)
 
 tourRouter.route('/')
-    .get(protectRoute, getAllTours)
-    .post(checkBodyMiddleware, addTour)
+    .get(getAllTours)
+    .post(protectRoute, restrictTo('admin', 'lead-guide'), checkBodyMiddleware, addTour)
 
 tourRouter.route('/:id')
     .get(getTour)
-    .patch(editTour)
-    .delete(protectRoute, restrictTo('admin', 'lead-guide') ,deleteTour)
+    .patch(protectRoute, restrictTo('admin', 'lead-guide'), editTour)
+    .delete(protectRoute, restrictTo('admin', 'lead-guide'), deleteTour)
 
 //nested routes
-userRouter.route('/:tourId/reviews').post(protectRoute, restrictTo('user'),setTourAndUserId, addReview)
+userRouter.route('/:tourId/reviews').post(protectRoute, restrictTo('user'), setTourAndUserId, addReview)
 
 
 export default tourRouter;
