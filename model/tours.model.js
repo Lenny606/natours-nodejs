@@ -125,6 +125,12 @@ const tourSchema = new mongoose.Schema({
         }
     }
 )
+//set indexing - compound index for price asc and average desc
+tourSchema.index({ price: 1, ratingsAverage: -1 })
+// tourSchema.index({ priceDiscount: 1 })
+// tourSchema.index({ ratingsAverage: -1 })
+// tourSchema.index({ startDates: 1 })
+// tourSchema.index({ startLocation: '2dsphere' })
 //not part of database
 tourSchema.virtual('durationWeeks').get(function () {
     return this.duration / 7;
