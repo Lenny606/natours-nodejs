@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
+import path from 'path';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
@@ -12,6 +13,11 @@ import tourRouter from './routes/tours.routes.js';
 import userRouter from './routes/users.routes.js';
 
 export const app = express();
+//setup template engine, no install
+app.set('view engine', 'pug')
+app.set('views', path.join(__dirname, 'views'))
+app.use(express.static(path.join(__dirname, 'public')))//serve static files
+
 dotenv.config()
 
 //set 100request per 1hr
@@ -48,7 +54,6 @@ app.use(hpp({
 if (process.env.NODE_ENV === 'dev') {
     app.use(morgan('dev'))//logs requests
 }
-app.use(express.static('public'))//serve static files
 
 
 //custom middleware
@@ -58,7 +63,12 @@ app.use((req, res, next) => {
     next()
 })
 
+//TEMPLATES
+app.get("/", function(req, res){
+    res.status(200).render('base')
+})
 
+//API
 app.use("/api/v1/tours", tourRouter)
 app.use("/api/v1/users", userRouter)
 app.use("/api/v1/reviews", reviewRouter)
