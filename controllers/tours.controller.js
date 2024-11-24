@@ -5,7 +5,7 @@ import Tour from "../model/tours.model.js";
 import {ApiFeatures} from "../utils/apiFeatures.js";
 import {catchAsync} from "../utils/catchAsync.js";
 import {AppError} from "../utils/appError.js";
-import {deleteOne} from "./handlerFactory.js";
+import {createOne, deleteOne, getAll, getOne, updateOne} from "./handlerFactory.js";
 
 //top level code, can be synchronous
 const fileName = './data/tours.json';
@@ -42,116 +42,113 @@ export const topFiveCheap = catchAsync(async (req, res, next, value) => {
     next();
 })
 
-export const getAllTours = async (req, res) => {
-    try {
-        //EXTRACTED INTO APIFEATURES CLASS
-        //BUILD QUERY create copy for filtering, remove unwanted fields from query
-        // const queryObj = {...req.query};
-        // const excludeFields = ['page', 'sort', 'limit', 'fields'];
-        // excludeFields.forEach(field => delete queryObj[field]);
-        //
-        // //advanced filtering
-        // const queryStr = JSON.stringify(queryObj).replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
-        //
-        // let query = Tour.find(JSON.parse(queryStr));
-
-        //SORTING
-        // if (req.query.sort) {
-        //     const sortBy = req.query.sort.split(',').join(' '); //accept more params in query [-price, -ratingAverage]
-        //     query = query.sort(sortBy)
-        // } else {
-        //     query = query.sort('-createdAt'); //default sort
-        // }
-
-        //field limiting ?fields=name,price,ratingAverage
-        // if (req.query.fields) {
-        //     const limiting = req.query.fields.split(',').join(' ');
-        //     query = query.select(limiting); //default sort
-        // } else {
-        //     query = query.select('-__v'); //defaultly excludes __v field from document
-        // }
-
-        //PAGINATING QUERY page=2&limit=10
-        // const page = req.query.page * 1 || 1;
-        // const limit = req.query.limit * 1 || 100;
-        // const skip = (page - 1) * limit;
-        // query = query.skip(skip).limit(limit)
-
-        // if (req.query.page) {
-        //     const numTours = await Tour.countDocuments();
-        //     if (skip >= numTours) {
-        //         throw new Error('Page does not exist.');
-        //     }
-        // }
-
-
-        //EXECUTE QUERY
-        const features = new ApiFeatures(Tour.find(), req.query)
-            .filter()
-            .sort()
-            .limitFields()
-            .paginate();
-        const allTours = await features.query;
-
-        //SEND
-        res.status(200).json({
-            status: 'success',
-            results: allTours.length,
-            data: allTours
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({status: 'error', message: 'Failed to get tours.'});
-    }
-}
-
-export const getTour = catchAsync(async (req, res, next) => {
-    //has middleware to validate id => isValidId()
-
-    const tour = await Tour.findById(req.params.id).populate('reviews')  //uses virtual populate MW
-
-    //TODO add 404 to other methods
-    if (!tour) {
-        return new AppError("Tour with this id not found", 404);
-    }
-
-    res.status(200).json({
-        status: 'success',
-        data: tour
-    })
-})
-
-export const addTour = catchAsync(async (req, res) => {
-    try {
-        const newTour = await Tour.create(req.body)
-        res.status(201).json({
-            status: 'success',
-            data: newTour
-        });
-
-    } catch (error) {
-        console.error(error);
-        res.status(400).json({status: 'error', message: 'Failed to add tour: ' + error});
-    }
-})
-export const editTour = catchAsync(async (req, res) => {
-
-    try {
-        //method used for PATCH request, doesnt work with PUT
-        const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-            new: true,
-            runValidators: true
-        })
-        res.status(200).json({
-            status: 'success',
-            data: updatedTour
-        });
-
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({status: 'error', message: 'Failed to find a tour: ' + error});
-    }
-})
+export const getAllTours = getAll(Tour)
+// export const getAllTours = async (req, res) => {
+//     try {
+//         //EXTRACTED INTO APIFEATURES CLASS
+//         //BUILD QUERY create copy for filtering, remove unwanted fields from query
+//         // const queryObj = {...req.query};
+//         // const excludeFields = ['page', 'sort', 'limit', 'fields'];
+//         // excludeFields.forEach(field => delete queryObj[field]);
+//         //
+//         // //advanced filtering
+//         // const queryStr = JSON.stringify(queryObj).replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`);
+//         //
+//         // let query = Tour.find(JSON.parse(queryStr));
+//
+//         //SORTING
+//         // if (req.query.sort) {
+//         //     const sortBy = req.query.sort.split(',').join(' '); //accept more params in query [-price, -ratingAverage]
+//         //     query = query.sort(sortBy)
+//         // } else {
+//         //     query = query.sort('-createdAt'); //default sort
+//         // }
+//
+//         //field limiting ?fields=name,price,ratingAverage
+//         // if (req.query.fields) {
+//         //     const limiting = req.query.fields.split(',').join(' ');
+//         //     query = query.select(limiting); //default sort
+//         // } else {
+//         //     query = query.select('-__v'); //defaultly excludes __v field from document
+//         // }
+//
+//         //PAGINATING QUERY page=2&limit=10
+//         // const page = req.query.page * 1 || 1;
+//         // const limit = req.query.limit * 1 || 100;
+//         // const skip = (page - 1) * limit;
+//         // query = query.skip(skip).limit(limit)
+//
+//         // if (req.query.page) {
+//         //     const numTours = await Tour.countDocuments();
+//         //     if (skip >= numTours) {
+//         //         throw new Error('Page does not exist.');
+//         //     }
+//         // }
+//
+//
+//         //EXECUTE QUERY
+//         const features = new ApiFeatures(Tour.find(), req.query)
+//             .filter()
+//             .sort()
+//             .limitFields()
+//             .paginate();
+//         const allTours = await features.query;
+//
+//         //SEND
+//         res.status(200).json({
+//             status: 'success',
+//             results: allTours.length,
+//             data: allTours
+//         });
+//     } catch (error) {
+//         console.error(error);
+//         res.status(500).json({status: 'error', message: 'Failed to get tours.'});
+//     }
+// }
+export const getTour = getOne(Tour, {path: 'reviews'})
+// export const getTour = catchAsync(async (req, res, next) => {
+//     //has middleware to validate id => isValidId()
+//
+//     const tour = await Tour.findById(req.params.id).populate('reviews')  //uses virtual populate MW
+//
+//     //TODO add 404 to other methods
+//     if (!tour) {
+//         return new AppError("Tour with this id not found", 404);
+//     }
+//
+//     res.status(200).json({
+//         status: 'success',
+//         data: tour
+//     })
+// })
+export const addTour = createOne(Tour)
+// export const addTour = catchAsync(async (req, res) => {
+//     try {
+//         const newTour = await Tour.create(req.body)
+//         res.status(201).json({
+//             status: 'success',
+//             data: newTour
+//         });
+//
+//     } catch (error) {
+//         console.error(error);
+//         res.status(400).json({status: 'error', message: 'Failed to add tour: ' + error});
+//     }
+// })
+export const editTour = updateOne(Tour)
+// export const editTour = catchAsync(async (req, res) => {
+//
+//         //method used for PATCH request, doesnt work with PUT
+//         const updatedTour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+//             new: true,
+//             runValidators: true
+//         })
+//         res.status(200).json({
+//             status: 'success',
+//             data: updatedTour
+//         });
+//         res.status(500).json({status: 'error', message: 'Failed to find a tour: ' + error});
+// })
 //TODO switch to handler in other methods
 export const deleteTour = deleteOne(Tour)
 // export const deleteTour = catchAsync(async (req, res) => {

@@ -4,6 +4,7 @@ import Review from "../model/reviews.model.js";
 import {ApiFeatures} from "../utils/apiFeatures.js";
 import {catchAsync} from "../utils/catchAsync.js";
 import {AppError} from "../utils/appError.js";
+import {createOne} from "./handlerFactory.js";
 
 
 
@@ -15,10 +16,7 @@ export const topFiveReviews = catchAsync(async (req, res, next, value) => {
 })
 
 export const getReviews = async (req, res) => {
-    //if id is in params
-    let filter ={
-        tour: req.params.tourId
-    }
+
 
     try {
         const features = new ApiFeatures(Review.find(filter), req.query)
@@ -56,27 +54,32 @@ export const getReview = catchAsync(async (req, res, next) => {
     })
 })
 
-export const addReview = catchAsync(async (req, res) => {
-   //allow nested routes
+export const setTourAndUserId = (req, res, next) => {
+    //allow nested routes MW
     if(!req.body.tour){
         req.body.tour = req.params.tourId
     }
     if(!req.body.user){
         req.body.user = req.user.id
     }
+    next()
+}
 
-    try {
-        const newReview = await Review.create(req.body)
-        res.status(201).json({
-            status: 'success',
-            data: newReview
-        });
-
-    } catch (error) {
-        console.error(error);
-        res.status(400).json({status: 'error', message: 'Failed to add review: ' + error});
-    }
-})
+export const addReview = createOne(Review)
+// export const addReview = catchAsync(async (req, res) => {
+//
+//     try {
+//         const newReview = await Review.create(req.body)
+//         res.status(201).json({
+//             status: 'success',
+//             data: newReview
+//         });
+//
+//     } catch (error) {
+//         console.error(error);
+//         res.status(400).json({status: 'error', message: 'Failed to add review: ' + error});
+//     }
+// })
 export const editReview = catchAsync(async (req, res) => {
 
     try {
