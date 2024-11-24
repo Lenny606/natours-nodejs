@@ -1,5 +1,7 @@
 import mongoose from 'mongoose';
 import slugify from 'slugify';
+import {aws4} from "mongodb/src/deps.js";
+import Tour from "./tours.model.js";
 
 const reviewSchema = new mongoose.Schema({
 
@@ -50,6 +52,51 @@ reviewSchema.pre(/^find/, function (next) {
         select: 'name photo'
     })
 })
+//statistic feature
+reviewSchema.statics.calculateAverageRating = async function (tourId) {
+    const stats = await this.aggregate([
+        {
+            $match: {
+                tour: tourId
+            }
+        },
+        {
+            $group: {
+                _id: '$tour',
+                nRating: {$sum: 1},
+                averageRating: {
+                    $avg: '$rating'
+                }
+            }
+
+        }
+    ])
+    if (stats.length > 0) {
+        Tour.findByIdAndUpdate(tourId, {
+            ratingsAverage: stats[0].averageRating,
+            ratingsQuantity: stats[0].nRating
+        })
+    } else {
+        Tour.findByIdAndUpdate(tourId, {
+            ratingsAverage: 0,
+            ratingsQuantity: 4.5
+        })
+    }
+
+
+}
+reviewSchema.post('save', function () {
+    this.constructor.calculateAverageRating(this.tour)
+})
+//workaround to pass data
+reviewSchema.pre(/^findOneAnd/, async function (next) {
+    this.r = await this.findOne()
+    next()
+})
+reviewSchema.post(/^findOneAnd/, async function () {
+    this.r.constructor.calculateAverageRating(this.r.tour)
+})
+
 const Review = mongoose.model('Review', reviewSchema);
 export default Review;
 
