@@ -3,11 +3,9 @@ import dotenv from 'dotenv';
 import {
     addReview,
     editReview,
-    getAllReviews,
+    getReviews,
     getReview,
     deleteReview,
-    isValidId,
-    getReviews,
     topFiveReviews
 } from "../controllers/reviews.controller.js";
 import {schemaValidation} from "../middleware/schemaValidation.js";

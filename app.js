@@ -1,7 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import morgan from 'morgan';
-import path from 'path';
+import  path from 'path';
+import { fileURLToPath } from 'url';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
@@ -11,10 +12,15 @@ import {AppError} from "./utils/appError.js";
 import {globalErrorHandler} from "./controllers/errors.controller.js"
 import tourRouter from './routes/tours.routes.js';
 import userRouter from './routes/users.routes.js';
+import reviewRouter from "./routes/reviews.routes.js";
 
 export const app = express();
 //setup template engine, no install
 app.set('view engine', 'pug')
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+//
 app.set('views', path.join(__dirname, 'views'))
 app.use(express.static(path.join(__dirname, 'public')))//serve static files
 
@@ -65,7 +71,10 @@ app.use((req, res, next) => {
 
 //TEMPLATES
 app.get("/", function(req, res){
-    res.status(200).render('base')
+    res.status(200).render('base', {
+        tours: "Tours",
+        name: "Jon Doe"
+    })
 })
 
 //API

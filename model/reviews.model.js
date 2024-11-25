@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import slugify from 'slugify';
-import {aws4} from "mongodb/src/deps.js";
 import Tour from "./tours.model.js";
 
 const reviewSchema = new mongoose.Schema({
