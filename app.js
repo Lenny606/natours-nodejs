@@ -13,6 +13,7 @@ import {globalErrorHandler} from "./controllers/errors.controller.js"
 import tourRouter from './routes/tours.routes.js';
 import userRouter from './routes/users.routes.js';
 import reviewRouter from "./routes/reviews.routes.js";
+import viewRouter from "./routes/view.routes.js";
 
 export const app = express();
 //setup template engine, no install
@@ -70,22 +71,7 @@ app.use((req, res, next) => {
 })
 
 //TEMPLATES
-app.get("/", function(req, res){
-    res.status(200).render('base', {
-        tours: "Tours",
-        name: "Jon Doe"
-    })
-})
-app.get("/overview", function(req, res){
-    res.status(200).render('tour', {
-        title: "All Tours",
-    })
-})
-app.get("/tour", function(req, res){
-    res.status(200).render('overview', {
-        title: "Tour",
-    })
-})
+app.use('/', viewRouter)
 
 //API
 app.use("/api/v1/tours", tourRouter)
