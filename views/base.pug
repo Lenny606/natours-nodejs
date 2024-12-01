@@ -14,25 +14,11 @@ html(lang="en")
         //p=value
         //p welcome text for #{tours}
         //- HEADER
-        header.header
-            nav.nav.nav--tours
-                a.nav__el(href='#') All Tours
-            div.header__logo
-                img(src="img/logo-white.png", alt="Natours Logo")
-            nav.nav.nav--user
-                button.nav__el Log in
-                button.nav__el.nav__el--cta Sign Up
+        include _header
+
         //- CONTENT
         section.overview
             h1= tours
+
         //FOOTER
-        footer.footer
-            div.footer__logo
-                img(src="img/logo-green.png", alt="Natours Logo")
-            ul.footer__nav
-                li: a(href="#") About Us
-                li: a(href="#") About Us
-                li: a(href="#") About Us
-                li: a(href="#") About Us
-                li: a(href="#") About Us
-            p.footer__copyright &copy
+        include _footer
