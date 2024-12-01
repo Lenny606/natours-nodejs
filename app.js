@@ -76,6 +76,16 @@ app.get("/", function(req, res){
         name: "Jon Doe"
     })
 })
+app.get("/overview", function(req, res){
+    res.status(200).render('tour', {
+        title: "All Tours",
+    })
+})
+app.get("/tour", function(req, res){
+    res.status(200).render('overview', {
+        title: "Tour",
+    })
+})
 
 //API
 app.use("/api/v1/tours", tourRouter)
