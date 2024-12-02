@@ -63,11 +63,14 @@ export const loginUser = async (req, res, next) => {
     createAndSendToken(user, 200, res)
 }
 export const protectRoute = catchAsync(async (req, res, next) => {
-    //get token
+    //get token from body or cookie
     let token
     if (req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
         token = req.headers.authorization.split(" ")[1]
+    } else if (req.cookies.jwt) {
+        token = req.cookies.jwt
     }
+
     if (!token) {
         return next(new AppError("You are not logged in", 401))
     }
