@@ -1,12 +1,13 @@
 doctype html
 html(lang="en")
     head
-        meta(name="viewport", content="width=device-width, initial-scale=1")
-        meta(charset="utf-8")
-        title Natours | #{title}
-        link(rel="stylesheet", href="/css/style.css")
-        link(rel='shortcut icon', type="image/png", href="/img/favicon.png")
-        link(rel='stylesheet', href="https://fonts.googleapis.com/css?family=Lato:300,300i,700")
+        block head
+            meta(name="viewport", content="width=device-width, initial-scale=1")
+            meta(charset="utf-8")
+            title Natours | #{title}
+            link(rel="stylesheet", href="/css/style.css")
+            link(rel='shortcut icon', type="image/png", href="/img/favicon.png")
+            link(rel='stylesheet', href="https://fonts.googleapis.com/css?family=Lato:300,300i,700")
     body
         //h1=tours
         //h2=name.toUpperCase()
@@ -23,3 +24,4 @@ html(lang="en")
 
         //FOOTER
         include _footer
+         script(src="/js/mapbox.js")
