@@ -33,9 +33,15 @@ export const getDetail = catchAsync(async (req, res, next) => {
         tour: tour
     })
 })
-export const getAdmin = (req, res) => {
+export const getAdmin = catchAsync(async (req, res) => {
     res.status(200).render('admin/admin', {})
-}
+})
+
+export const getLoginForm = catchAsync(async (req, res, next) => {
+    res.status(200).render('login', {
+        title: `Login`
+    })
+})
 export const protectedRoute = (req, res, next) => {
     const protect = true
     if (!protect) {
