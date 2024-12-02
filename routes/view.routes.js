@@ -1,9 +1,10 @@
 import express from 'express';
-import {getBase, getDetail, getOverview} from "../controllers/views.controller.js";
+import {getAdmin, getDetail, getOverview, protectedRoute} from "../controllers/views.controller.js";
 
 const viewRouter = express.Router()
 
 viewRouter.get("/", getOverview)
-viewRouter.get("/tour", getDetail)
+viewRouter.get("/tour/:slug/", getDetail)
+viewRouter.get("/admin", getAdmin)
 
 export default viewRouter;
