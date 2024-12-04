@@ -62,6 +62,13 @@ export const loginUser = async (req, res, next) => {
     }
     createAndSendToken(user, 200, res)
 }
+export const logoutUser = (req, res, next) => {
+    res.cookie("jwt", "loggedout", {
+        expires: new Date(Date.now() - 10 * 1000),
+        httpOnly: true,
+    })
+    res.status(200).json({status: "success", message: "Logged out"})
+}
 export const protectRoute = catchAsync(async (req, res, next) => {
     //get token from body or cookie
     let token
@@ -90,7 +97,8 @@ export const protectRoute = catchAsync(async (req, res, next) => {
     req.user = currentUser
     next()
 })
-export const isLoggedIn = catchAsync(async (req, res, next) => {
+
+export const isLoggedIn = async (req, res, next) => {
     //only for rendered pages, no error, using cookie
     if (req.cookies.jwt) {
         const decodedData = await promisify(jwt.verify(req.cookies.jwt, process.env.JWT_SECRET))
@@ -111,7 +119,7 @@ export const isLoggedIn = catchAsync(async (req, res, next) => {
 
     //if no cookie go to next mw
     next()
-})
+}
 export const restrictTo = (...roles) => {
     return (req, res, next) => {
         //user comes from 1st MW
@@ -121,7 +129,6 @@ export const restrictTo = (...roles) => {
         next()
     }
 }
-
 export const forgotPassword = catchAsync(async (req, res, next) => {
     //get user by email
     const user = User.findOne({email: req.body.email})

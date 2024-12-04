@@ -16,7 +16,7 @@ import {
     signUpUser,
     forgotPassword,
     updatePassword,
-    protectRoute, restrictTo
+    protectRoute, restrictTo, logoutUser
 } from "../controllers/auth.controller.js";
 
 const userRouter = express.Router()
@@ -24,6 +24,7 @@ const userRouter = express.Router()
 //auth logic, not protected
 userRouter.post('/signup', signUpUser)
 userRouter.post('/login', loginUser)
+userRouter.get('/logout', logoutUser)
 userRouter.post('/forgotPassword', forgotPassword)
 userRouter.patch('/resetPassword/:token', resetPassword)
 

@@ -1,20 +1,17 @@
+//login has http cookie, not possible to manipulate in the browser => needs new route
 import axios from "axios";
 import {showAlert} from "./alerts.js";
 
-export const login = async (email, password) => {
+export const logout = async () => {
     try {
         const res = await axios({
-            method: 'POST',
-            url: 'http://localhost:8001/api/v1/users/login',
-            data: {
-                email,
-                password
-            }
+            method: 'GET',
+            url: 'http://localhost:8001/api/v1/users/logout'
         })
         if (res.data.status === 'success') {
-            showAlert('success', "Login successful")
+            showAlert('success', res.data.message);
             window.setTimeout(() => {
-                location.assign("/")
+                location.reload() //loads from server , not cached
             },1500)
         }
     } catch (error) {
