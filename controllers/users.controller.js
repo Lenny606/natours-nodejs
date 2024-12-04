@@ -25,16 +25,13 @@ const filterObject = (obj, fieldsArray) => {
 
 export const getAllUsers = catchAsync(async (req, res, next) => {
     const users = await User.find()
-    try {
+
         res.status(200).json({
             status: 'success',
             results: users.length,
             data: users
         });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({status: 'error', message: 'Failed to get users.'});
-    }
+
 })
 export const getUser = async (req, res) => {
     const params = req.params

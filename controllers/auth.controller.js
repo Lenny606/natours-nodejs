@@ -90,7 +90,28 @@ export const protectRoute = catchAsync(async (req, res, next) => {
     req.user = currentUser
     next()
 })
+export const isLoggedIn = catchAsync(async (req, res, next) => {
+    //only for rendered pages, no error, using cookie
+    if (req.cookies.jwt) {
+        const decodedData = await promisify(jwt.verify(req.cookies.jwt, process.env.JWT_SECRET))
+        //check user if still exists using docoded ID
+        const currentUser = await User.findById(decodedData.id)
+        if (!currentUser) {
+            return next()
+        }
+        //check if password wasnt changed / login on model
+        if (currentUser.changedPasswordAfter(decodedData.iat)) {
+            return next()
+        }
+        //user is logged
+        //res.locals => every pug template has acccess to
+        res.locals.user = currentUser
+        return next()
+    }
 
+    //if no cookie go to next mw
+    next()
+})
 export const restrictTo = (...roles) => {
     return (req, res, next) => {
         //user comes from 1st MW
