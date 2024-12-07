@@ -7,7 +7,7 @@ import {
     getTour,
     deleteTour,
     isValidId,
-    checkBodyMiddleware, topFiveCheap, getTourStats, getMonthlyPlans
+    checkBodyMiddleware, topFiveCheap, getTourStats, getMonthlyPlans, uploadTourImages, resizeTourImages
 } from "../controllers/tours.controller.js";
 import toursModel from "../model/tours.model.js";
 import {schemaValidation} from "../middleware/schemaValidation.js";
@@ -35,7 +35,7 @@ tourRouter.route('/')
 
 tourRouter.route('/:id')
     .get(getTour)
-    .patch(protectRoute, restrictTo('admin', 'lead-guide'), editTour)
+    .patch(protectRoute, restrictTo('admin', 'lead-guide'), uploadTourImages, resizeTourImages, editTour)
     .delete(protectRoute, restrictTo('admin', 'lead-guide'), deleteTour)
 
 //nested routes

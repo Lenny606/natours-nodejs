@@ -53,6 +53,8 @@ export const resizePhoto = (req, res, next) => {
         .toFormat('webp')
         .webp({quality: 90})
         .toFile("public/img/users/" + fileName) //resize+ format+ compress image
+
+    next()
 };
 
 

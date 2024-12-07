@@ -6,11 +6,54 @@ import {ApiFeatures} from "../utils/apiFeatures.js";
 import {catchAsync} from "../utils/catchAsync.js";
 import {AppError} from "../utils/appError.js";
 import {createOne, deleteOne, getAll, getOne, updateOne} from "./handlerFactory.js";
+import multer from "multer";
+import sharp from "sharp";
 
 //top level code, can be synchronous
 const fileName = './data/tours.json';
 const data = fs.readFileSync(fileName)
 const tours = JSON.parse(data);
+
+//Images logic
+//save to memory / buffer
+const multerStorage = multer.memoryStorage()
+
+//checks for images files
+const multerFilter = (req, file, cb) => {
+    if (file.mimetype.startsWith('image')) {
+        cb(null, true)
+    } else {
+        cb(new AppError('Please upload an image file', 400), false)
+    }
+}
+const upload = multer({
+    storage: multerStorage,
+    fileFilter: multerFilter
+})
+export const uploadTourImages = upload.fields([
+    {
+        name: 'imageCover',
+        maxCount: 1
+    },
+    {
+        name: 'images',
+        maxCount: 3,
+    }
+]);
+//resize img MW
+export const resizeTourImages = (req, res, next) => {
+    if (!req.file) {
+        return next();
+    }
+    const extension = "webp"
+    const fileName = `user-${req.user.id}-${Date.now()}.${extension}`;
+    req.file.filename = fileName; //pass to body
+    const img = sharp(req.file.buffer) //load image from memory
+    img.resize(500, 500)
+        .toFormat('webp')
+        .webp({quality: 90})
+        .toFile("public/img/users/" + fileName) //resize+ format+ compress image
+};
 
 export const isValidId = (req, res, next, value) => {
     const params = req.params
