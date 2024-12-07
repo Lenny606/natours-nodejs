@@ -95,6 +95,7 @@ export const protectRoute = catchAsync(async (req, res, next) => {
     }
     //access granted
     req.user = currentUser
+    res.locals.user = currentUser
     next()
 })
 

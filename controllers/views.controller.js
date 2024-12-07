@@ -1,6 +1,7 @@
 import {AppError} from "../utils/appError.js";
 import {catchAsync} from "../utils/catchAsync.js";
 import Tour from "../model/tours.model.js";
+import User from "../model/users.model.js";
 
 //test
 export const getBase = (req, res) => {
@@ -34,7 +35,9 @@ export const getDetail = catchAsync(async (req, res, next) => {
     })
 })
 export const getAdmin = catchAsync(async (req, res) => {
-    res.status(200).render('admin/admin', {})
+    res.status(200).render('admin/admin', {
+        title: `Dashboard`
+    })
 })
 
 export const getLoginForm = catchAsync(async (req, res, next) => {
@@ -48,4 +51,18 @@ export const protectedRoute = (req, res, next) => {
         throw AppError(401)
     }
     next()
+}
+export const submitAdminForm = async (req, res, next) => {
+    const updatedUser = await User.findByIdAndUpdate(req.user.id, {
+        name: req.body.name,
+        email: req.body.email
+    }, {
+        new: true,
+        runValidators: true
+    })
+    //render page again with udpated user
+    res.status(200).render('admin/admin', {
+        title: `Dashboard`,
+        user: updatedUser
+    })
 }

@@ -42,6 +42,10 @@ app.use('/api', limiter)
 app.use(express.json({
     limit: '10kb'
 }))
+app.use(express.urlencoded({
+    extended:true,
+    limit: "10kb"
+})) //MW for Form Data in request (not for APi logic)
 app.use(cookieParser()) //parse date from cookies
 
 //checks for character injection
