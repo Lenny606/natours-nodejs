@@ -3,11 +3,12 @@ import '@babel/polyfill'
 import {login} from "./login.js";
 import {displayMap} from "./mapbox.js";
 import {logout} from "./logout.js";
-import {updateData} from "./updateAdminSettings.js";
+import {updateAdminSettings} from "./updateAdminSettings.js";
 
 const mapbox = document.getElementById('map')
 const form = document.querySelector('.form--login');
 const formAdminUserData = document.querySelector('.form-user-data');
+const formAdminPassword = document.querySelector('.form-user-password');
 const logoutBtn = document.querySelector('.nav__el--logout');
 
 if (mapbox) {
@@ -17,18 +18,39 @@ if (mapbox) {
 
 if (form) {
     form.addEventListener("submit", function (event) {
+        event.preventDefault()
+        login
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
-        event.preventDefault()
-        login(email, password)
+        (email, password)
     })
 }
 if (formAdminUserData) {
-    form.addEventListener("submit", function (event) {
+    formAdminUserData.addEventListener("submit", function (event) {
+        event.preventDefault()
         const name = document.getElementById('name').value;
         const email = document.getElementById('email').value;
+
+        updateAdminSettings({name, email}, 'data')
+    })
+}
+if (formAdminPassword) {
+    formAdminPassword.addEventListener("submit",  async function (event) {
         event.preventDefault()
-        updateData(name, email)
+        const btn = document.querySelector('.btn--save-password').textContent = "Updating..."
+        const passwordCurrent = document.getElementById('password-current').value;
+        const password = document.getElementById('password').value;
+        const passwordConfirm = document.getElementById('password-confirm').value;
+
+        //async
+        await updateAdminSettings({passwordCurrent, password, passwordConfirm}, 'password')
+
+        //clear form
+        passwordCurrent.value = ''
+        password.value = ''
+        passwordConfirm.value = ''
+        btn.textContent = "Saved Password"
+
     })
 }
 if (logoutBtn) {
