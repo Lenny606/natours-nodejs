@@ -7,7 +7,7 @@ import {
     deleteUser,
     updateMe,
     deleteMe,
-    getMe, uploadUserPhoto
+    getMe, uploadUserPhoto, resizePhoto
 } from "../controllers/users.controller.js";
 import {
     loginUser,
@@ -48,7 +48,7 @@ userRouter.route('/:id')
 
 
 //data modifications
-userRouter.patch('/updateMe', uploadUserPhoto,updateMe)
+userRouter.patch('/updateMe', uploadUserPhoto, resizePhoto, updateMe)
 userRouter.delete('/deleteMe', deleteMe)
 
 //get users own data

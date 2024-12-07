@@ -28,10 +28,12 @@ if (form) {
 if (formAdminUserData) {
     formAdminUserData.addEventListener("submit", function (event) {
         event.preventDefault()
-        const name = document.getElementById('name').value;
-        const email = document.getElementById('email').value;
+        const form = new FormData()
+        form.append('name', document.getElementById('name').value)
+        form.append('email', document.getElementById('email').value)
+        form.append('photo', document.getElementById('photo').files[0])
 
-        updateAdminSettings({name, email}, 'data')
+        updateAdminSettings(form, 'data')
     })
 }
 if (formAdminPassword) {

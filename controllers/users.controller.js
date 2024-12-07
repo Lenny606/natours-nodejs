@@ -12,17 +12,21 @@ const fileName = './data/users.json';
 const data = fs.readFileSync(fileName)
 const users = JSON.parse(data);
 
-//setup img uploader + create MW
-const multerStorage = upload.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'public/images/users')
-    },
-    filename: (req, file, cb) => {
-        const extension = file.mimetype.split('/')[0]; // image/jpeg
-        const fileName = `user-${req.user.id}-${Date.now()}.${extension}`;
-        cb(null, fileName);
-    }
-})
+//setup img uploader + create MW => saves to hdd
+// const multerStorage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//         cb(null, 'public/images/users')
+//     },
+//     filename: (req, file, cb) => {
+//         const extension = file.mimetype.split('/')[0]; // image/jpeg
+//         const fileName = `user-${req.user.id}-${Date.now()}.${extension}`;
+//         cb(null, fileName);
+//     }
+// })
+
+//save to memory / buffer
+const multerStorage = multer.memoryStorage()
+
 //checks for images files
 const multerFilter = (req, file, cb) => {
     if (file.mimetype.startsWith('image')) {
@@ -36,6 +40,20 @@ const upload = multer({
     fileFilter: multerFilter
 })
 export const uploadUserPhoto = upload.single('photo');
+//resize img MW
+export const resizePhoto = (req, res, next) => {
+    if (!req.file) {
+        return next();
+    }
+    const extension = "webp"
+    const fileName = `user-${req.user.id}-${Date.now()}.${extension}`;
+    req.file.filename = fileName; //pass to body
+    const img = sharp(req.file.buffer) //load image from memory
+    img.resize(500, 500)
+        .toFormat('webp')
+        .webp({quality: 90})
+        .toFile("public/img/users/" + fileName) //resize+ format+ compress image
+};
 
 
 const filterObject = (obj, fieldsArray) => {
