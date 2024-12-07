@@ -12,7 +12,7 @@ import {isLoggedIn} from "../controllers/auth.controller.js";
 const viewRouter = express.Router()
 
 //admin route
-viewRouter("/admin", protectedRoute, getAdmin)
+viewRouter.get("/admin", protectedRoute, getAdmin)
 
 //use mw for every template
 viewRouter.use(isLoggedIn) //passes user to every route
