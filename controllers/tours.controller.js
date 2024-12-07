@@ -41,19 +41,34 @@ export const uploadTourImages = upload.fields([
     }
 ]);
 //resize img MW
-export const resizeTourImages = (req, res, next) => {
-    if (!req.file) {
+export const resizeTourImages = catchAsync(async (req, res, next) => {
+    if (!req.files.imageCover || !req.files.images) {
         return next();
     }
     const extension = "webp"
-    const fileName = `user-${req.user.id}-${Date.now()}.${extension}`;
-    req.file.filename = fileName; //pass to body
-    const img = sharp(req.file.buffer) //load image from memory
-    img.resize(500, 500)
+    //COVER IMAGE
+    const fileNameImageCover = `tour-${req.params.id}-${Date.now()}-cover.${extension}`;
+    req.body.imageCover = fileNameImageCover; //pass to body
+    const imgCover = sharp(req.files.imageCover[0].buffer) //load image from memory
+    await imgCover.resize(2000, 1333) // 3/4 ratio
         .toFormat('webp')
         .webp({quality: 90})
-        .toFile("public/img/users/" + fileName) //resize+ format+ compress image
-};
+        .toFile("public/img/tours/" + fileNameImageCover) //resize+ format+ compress image
+
+    //IMAGES
+    req.body.images = []
+    await Promise.all(req.files.images.map(async function (file, i) {
+        const fileNameImage = `tour-${req.params.id}-${Date.now()}-${i + 1}.${extension}`;
+        req.body.images.push(fileNameImage);
+        const img = sharp(file.buffer)
+        await img.resize(2000, 1333)
+            .toFormat('webp')
+            .webp({quality: 90})
+            .toFile("public/img/tours/" + fileNameImage)
+
+    }))
+    next()
+});
 
 export const isValidId = (req, res, next, value) => {
     const params = req.params

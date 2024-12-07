@@ -7,6 +7,7 @@ import {catchAsync} from "../utils/catchAsync.js";
 import {AppError} from "../utils/appError.js";
 import multer from 'multer';
 import sharp from 'sharp';
+import {awrap} from "../public/js/bundle.js";
 //top level code, can be synchronous
 const fileName = './data/users.json';
 const data = fs.readFileSync(fileName)
@@ -41,7 +42,7 @@ const upload = multer({
 })
 export const uploadUserPhoto = upload.single('photo');
 //resize img MW
-export const resizePhoto = (req, res, next) => {
+export const resizePhoto = catchAsync(async (req, res, next) => {
     if (!req.file) {
         return next();
     }
@@ -49,13 +50,13 @@ export const resizePhoto = (req, res, next) => {
     const fileName = `user-${req.user.id}-${Date.now()}.${extension}`;
     req.file.filename = fileName; //pass to body
     const img = sharp(req.file.buffer) //load image from memory
-    img.resize(500, 500)
+    await img.resize(500, 500)
         .toFormat('webp')
         .webp({quality: 90})
         .toFile("public/img/users/" + fileName) //resize+ format+ compress image
 
     next()
-};
+});
 
 
 const filterObject = (obj, fieldsArray) => {
