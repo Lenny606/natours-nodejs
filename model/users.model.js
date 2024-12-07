@@ -42,7 +42,9 @@ const userSchema = new mongoose.Schema({
             }
 
         },
-        photo: String,
+        photo: {
+            type: String,
+            default: 'default.jpg'},
         createdAt: {
             type: Date,
             default: Date.now(),

@@ -65,6 +65,9 @@ function sendErrorProd(err, req, res) {
 
 function sendErrorDev(err, req, res) {
     //API + VIEW error page
+    //TODO FIX error
+    console.log(req.originalUrl)
+    console.log(req.originalUrl)
     if (req.originalUrl.startsWith("/api")) {
         return res.status(err.status).json({
             status: err.status,

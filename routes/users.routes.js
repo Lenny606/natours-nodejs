@@ -1,5 +1,4 @@
 import express from 'express';
-import dotenv from 'dotenv';
 import {
     addUser,
     editUser,
@@ -8,7 +7,7 @@ import {
     deleteUser,
     updateMe,
     deleteMe,
-    getMe
+    getMe, uploadUserPhoto
 } from "../controllers/users.controller.js";
 import {
     loginUser,
@@ -49,7 +48,7 @@ userRouter.route('/:id')
 
 
 //data modifications
-userRouter.patch('/updateMe', updateMe)
+userRouter.patch('/updateMe', uploadUserPhoto,updateMe)
 userRouter.delete('/deleteMe', deleteMe)
 
 //get users own data

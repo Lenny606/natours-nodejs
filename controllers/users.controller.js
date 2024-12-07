@@ -5,11 +5,36 @@ import User from "../model/users.model.js";
 import {ApiFeatures} from "../utils/apiFeatures.js";
 import {catchAsync} from "../utils/catchAsync.js";
 import {AppError} from "../utils/appError.js";
-
+import multer from 'multer';
 //top level code, can be synchronous
 const fileName = './data/users.json';
 const data = fs.readFileSync(fileName)
 const users = JSON.parse(data);
+
+//setup img uploader + create MW
+const multerStorage = upload.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'public/images/users')
+    },
+    filename: (req, file, cb) => {
+        const extension = file.mimetype.split('/')[0]; // image/jpeg
+        const fileName = `user-${req.user.id}-${Date.now()}.${extension}`;
+        cb(null, fileName);
+    }
+})
+//checks for images files
+const multerFilter = (req, file, cb) => {
+    if (file.mimetype.startsWith('image')) {
+        cb(null, true)
+    } else {
+        cb(new AppError('Please upload an image file', 400), false)
+    }
+}
+const upload = multer({
+    storage: multerStorage,
+    fileFilter: multerFilter
+})
+export const uploadUserPhoto = upload.single('photo');
 
 
 const filterObject = (obj, fieldsArray) => {
@@ -18,7 +43,6 @@ const filterObject = (obj, fieldsArray) => {
         if (fieldsArray.includes(el)) {
             newObj[el] = obj[el]
         }
-        ;
     })
     return newObj;
 }
@@ -26,11 +50,11 @@ const filterObject = (obj, fieldsArray) => {
 export const getAllUsers = catchAsync(async (req, res, next) => {
     const users = await User.find()
 
-        res.status(200).json({
-            status: 'success',
-            results: users.length,
-            data: users
-        });
+    res.status(200).json({
+        status: 'success',
+        results: users.length,
+        data: users
+    });
 
 })
 export const getUser = async (req, res) => {
@@ -128,8 +152,12 @@ export const updateMe = catchAsync(async (req, res, next) => {
         return next(new AppError('This route is not for password updates', 400))
     }
 
-    //update user document
+    //filter unwanted fields
     const filteredBody = filterObject(req.body, ['password', 'passwordConfirm']);
+    if (req.file) {
+        filteredBody.photo = req.file.filename;
+    }
+
     const userUpdated = await User.findByIdAndUpdate(req.user.id, filteredBody, {
         new: true,
         runValidators: true
