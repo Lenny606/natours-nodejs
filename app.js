@@ -77,7 +77,6 @@ if (process.env.NODE_ENV === 'dev') {
 app.use((req, res, next) => {
     //add timestamp to request object
     req.requestedAt = new Date().toISOString()
-    console.log(req.cookies)
     next()
 })
 

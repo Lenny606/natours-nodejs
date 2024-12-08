@@ -151,7 +151,6 @@ tourSchema.pre('save', function (next) {
     next()
 })
 tourSchema.post('save', function (document, next) {
-    console.log(document)
     next()
 })
 

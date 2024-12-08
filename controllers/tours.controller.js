@@ -94,7 +94,6 @@ export const checkBodyMiddleware = (req, res, next, value) => {
 export const topFiveCheap = catchAsync(async (req, res, next, value) => {
     //modify query
     req.query.limit = '5';
-    console.log(req.query.limit)
     req.query.sort = '-ratingAverage,price';
     req.query.fields = 'name,price,ratingAverage,difficulty,summary';
     next();

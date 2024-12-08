@@ -103,7 +103,6 @@ export const addUser = async (req, res) => {
         const updatedData = JSON.stringify(users.push(newUser));
         fs.writeFile(fileName, updatedData, error => {
             if (error) throw error;
-            console.log('User added successfully!');
             res.status(201).json({
                 status: 'success',
                 data: newUser
@@ -128,7 +127,6 @@ export const editUser = async (req, res) => {
         const updatedData = JSON.stringify(users);
         fs.writeFile(fileName, updatedData, error => {
             if (error) throw error;
-            console.log('User edited successfully!');
             res.status(201).json({
                 status: 'success',
                 data: user
