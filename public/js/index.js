@@ -4,8 +4,10 @@ import {login} from "./login.js";
 import {displayMap} from "./mapbox.js";
 import {logout} from "./logout.js";
 import {updateAdminSettings} from "./updateAdminSettings.js";
+import {bookTour} from "./stripe.js";
 
 const mapbox = document.getElementById('map')
+const bookTourBtn = document.getElementById('book-tour')
 const form = document.querySelector('.form--login');
 const formAdminUserData = document.querySelector('.form-user-data');
 const formAdminPassword = document.querySelector('.form-user-password');
@@ -26,14 +28,14 @@ if (form) {
     })
 }
 if (formAdminUserData) {
-    formAdminUserData.addEventListener("submit", function (event) {
+    formAdminUserData.addEventListener("submit", async function (event) {
         event.preventDefault()
         const form = new FormData()
         form.append('name', document.getElementById('name').value)
         form.append('email', document.getElementById('email').value)
         form.append('photo', document.getElementById('photo').files[0])
 
-        updateAdminSettings(form, 'data')
+        await updateAdminSettings(form, 'data')
     })
 }
 if (formAdminPassword) {
@@ -56,7 +58,16 @@ if (formAdminPassword) {
     })
 }
 if (logoutBtn) {
-    logoutBtn.addEventListener("click", function (event) {
+    logoutBtn.addEventListener("click", function () {
         logout()
+    })
+}
+
+if (bookTourBtn) {
+    bookTourBtn.addEventListener("click", function (e) {
+        const id = e.target.dataset.tourId
+        bookTour(id)
+        bookTourBtn.textContent = "Saved booking"
+
     })
 }
