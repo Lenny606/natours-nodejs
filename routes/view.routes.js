@@ -2,7 +2,7 @@ import express from 'express';
 import {
     getAdmin,
     getDetail,
-    getLoginForm,
+    getLoginForm, getMyTours,
     getOverview,
     protectedRoute,
     submitAdminForm

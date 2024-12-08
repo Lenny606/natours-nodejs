@@ -7,7 +7,6 @@ import {catchAsync} from "../utils/catchAsync.js";
 import {AppError} from "../utils/appError.js";
 import multer from 'multer';
 import sharp from 'sharp';
-import {awrap} from "../public/js/bundle.js";
 //top level code, can be synchronous
 const fileName = './data/users.json';
 const data = fs.readFileSync(fileName)
