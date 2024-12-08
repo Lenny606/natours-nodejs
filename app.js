@@ -15,6 +15,7 @@ import tourRouter from './routes/tours.routes.js';
 import userRouter from './routes/users.routes.js';
 import reviewRouter from "./routes/reviews.routes.js";
 import viewRouter from "./routes/view.routes.js";
+import bookingRouter from "./routes/bookings.routes.js";
 
 export const app = express();
 //setup template engine, no install
@@ -84,6 +85,7 @@ app.use('/', viewRouter)
 app.use("/api/v1/tours", tourRouter)
 app.use("/api/v1/users", userRouter)
 app.use("/api/v1/reviews", reviewRouter)
+app.use("/api/v1/bookings", bookingRouter)
 
 //Handler for undefined routes (last in stack order)
 app.all('*', (req, res, next) => {
