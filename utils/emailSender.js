@@ -12,7 +12,15 @@ export class Email {
 
     createTransport() {
         if (process.env.NODE_ENV === 'production') {
-            return 1
+            //send grid not created
+            return nodemailer.createTransport({
+                service: "SendGrid",
+                auth: {
+                    user: process.env.SENDGRID_USER,
+                    pass: process.env.SENDGRID_PASSWORD
+                }
+            })
+
         } else {
             return nodemailer.createTransport({
                 host: process.env.EMAIL_HOST,
@@ -49,7 +57,11 @@ export class Email {
     }
 
     async sendWelcome() {
-       await this.send("welcome", "Welcome to the web")
+        await this.send("welcome", "Welcome to the web")
+    }
+
+    async sendPasswordReset() {
+        await this.send("passwordReset", "Password reset token  - valid 10 min")
     }
 }
 
