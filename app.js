@@ -8,6 +8,7 @@ import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
 import hpp from 'hpp';
+import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import {AppError} from "./utils/appError.js";
 import {globalErrorHandler} from "./controllers/errors.controller.js"
@@ -28,7 +29,8 @@ app.set('views', path.join(__dirname, 'views'))
 app.use(express.static(path.join(__dirname, 'public')))//serve static files
 
 dotenv.config()
-
+app.use(cors()) //allows all
+app.options('*', cors())//allows all methods
 //set 100request per 1hr
 const limiter = rateLimit({
     max: 100,
