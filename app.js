@@ -9,6 +9,7 @@ import mongoSanitize from 'express-mongo-sanitize';
 import xss from 'xss-clean';
 import hpp from 'hpp';
 import cors from 'cors';
+import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import {AppError} from "./utils/appError.js";
 import {globalErrorHandler} from "./controllers/errors.controller.js"
@@ -66,7 +67,7 @@ app.use(hpp({
         'difficulty',
         ] //only allow these fields in query string
 }))
-
+app.use(compression()) //compress reqs data
 if (process.env.NODE_ENV === 'dev') {
     app.use(morgan('dev'))//logs requests
 }
