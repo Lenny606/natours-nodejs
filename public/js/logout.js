@@ -1,12 +1,13 @@
 //login has http cookie, not possible to manipulate in the browser => needs new route
 import axios from "axios";
 import {showAlert} from "./alerts.js";
+import {getBaseUrl} from "../../utils/functions.js";
 
 export const logout = async () => {
     try {
         const res = await axios({
             method: 'GET',
-            url: 'http://localhost:8001/api/v1/users/logout'
+            url: getBaseUrl() + '/api/v1/users/logout'
         })
         if (res.data.status === 'success') {
             showAlert('success', res.data.message);

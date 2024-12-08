@@ -1,11 +1,12 @@
 import axios from "axios";
 import {showAlert} from "./alerts.js";
+import {getBaseUrl} from "../../utils/functions.js";
 
 export const login = async (email, password) => {
     try {
         const res = await axios({
             method: 'POST',
-            url: 'http://localhost:8001/api/v1/users/login',
+            url: getBaseUrl() + '/api/v1/users/login',
             data: {
                 email,
                 password

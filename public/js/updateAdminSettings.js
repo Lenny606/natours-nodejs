@@ -1,6 +1,7 @@
 import axios from "axios";
 import {showAlert} from "./alerts.js";
 import {catchAsync} from "../../utils/catchAsync.js";
+import {getBaseUrl} from "../../utils/functions.js";
 
 export const updateAdminSettings = catchAsync(async (data, type) => {
     try {
@@ -9,7 +10,7 @@ export const updateAdminSettings = catchAsync(async (data, type) => {
             : "updateMe"
         const res = await axios({
             method: 'PATCH',
-            url: 'http://localhost:8001/api/v1/users/' + endpoint,
+            url: getBaseUrl() + '/api/v1/users/' + endpoint,
             data
         })
         if (res.data.status === 'success') {
