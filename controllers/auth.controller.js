@@ -3,6 +3,7 @@ import {catchAsync} from "../utils/catchAsync.js";
 import jwt from "jsonwebtoken"
 import {promisify} from "util"
 import {AppError} from "../utils/appError.js";
+import {Email} from "../utils/emailSender.js";
 
 const signToken = (id) => {
     const token = jwt.sign({
@@ -43,6 +44,10 @@ export const signUpUser = catchAsync(async (req, res, next) => {
         password: req.body.password,
         passwordConfirm: req.body.passwordConfirm,
     });
+
+    const url = req.protocol + '://' + req.get('host') + "/updateMe"
+    const email = new Email(newUser, url)
+    await email.sendWelcome()
 
     createAndSendToken(newUser, 201, res)
 });
