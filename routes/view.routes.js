@@ -23,6 +23,7 @@ viewRouter.get("/tour/:slug", getDetail)
 viewRouter.get("/admin", getAdmin)
 viewRouter.get("/login", getLoginForm)
 viewRouter.post("/submit-admin-form", submitAdminForm)
+viewRouter.post("/my-tours", getMyTours )
 
 
 

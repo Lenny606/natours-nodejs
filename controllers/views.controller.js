@@ -2,6 +2,7 @@ import {AppError} from "../utils/appError.js";
 import {catchAsync} from "../utils/catchAsync.js";
 import Tour from "../model/tours.model.js";
 import User from "../model/users.model.js";
+import Booking from "../model/bookings.model.js";
 
 //test
 export const getBase = (req, res) => {
@@ -64,5 +65,17 @@ export const submitAdminForm = async (req, res, next) => {
     res.status(200).render('admin/admin', {
         title: `Dashboard`,
         user: updatedUser
+    })
+}
+
+export const getMyTours = async (req, res, next) => {
+
+    const bookings = await Booking.find({user: req.user.id})
+    const tourIds = bookings.map(item => item.tour)
+    const tours = await Tour.find({_id: {$in: tourIds}}).populate('reviews')
+    //render page again with udpated user
+    res.status(200).render('overview', {
+        title: `My Tours`,
+        tours
     })
 }
