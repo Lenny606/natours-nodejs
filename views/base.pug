@@ -5,6 +5,7 @@ html(lang="en")
             meta(name="viewport", content="width=device-width, initial-scale=1")
             meta(charset="utf-8")
             meta(name="robots", content="nofollow noindex")
+            meta(http-equiv="Content-Security-Policy", content="script-src 'self' 'nonce-2726c7f26c' js.stripe.com;")
             title Natours | #{title}
             link(rel="stylesheet", href="/css/style.css")
             link(rel='shortcut icon', type="image/png", href="/img/favicon.png")
@@ -25,5 +26,5 @@ html(lang="en")
 
         //FOOTER
         include _footer
-        script(src='https://js.stripe.com/v3/')
+        script(nonce="2726c7f26c", src='https://js.stripe.com/v3/')
         script(src="/js/bundle.js")
